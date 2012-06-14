@@ -1,0 +1,9 @@
++++ twitter_post.module
+@@ -78,6 +78,7 @@
+ 
+         $twitter_account = twitter_account_load($node->twitter['account']);
+         $replacements = array('!title' => $node->title,
++															'!excerpt' => $node->field_excerpt[0]['value'],
+                               '!url' => url('node/'. $node->nid, array('absolute' => TRUE, 'alias' => TRUE)),
+                               '!url-alias' => url('node/'. $node->nid, array('absolute' => TRUE)),
+                               '!user' => $node->name);

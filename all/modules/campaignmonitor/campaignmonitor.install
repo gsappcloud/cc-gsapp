@@ -1,0 +1,28 @@
+<?php
+// $Id: campaignmonitor.install,v 1.2.2.3.2.2 2009/11/07 08:29:21 ssherriff Exp $
+
+function campaignmonitor_uninstall() {
+  variable_del('campaignmonitor_userpagedisplaytext');
+  variable_del('campaignmonitor_checkboxdisplaytext');
+  variable_del('campaignmonitor_client_id');
+  variable_del('campaignmonitor_lists');
+	variable_del('campaignmonitor_display_on');
+  variable_del('campaignmonitor_api_key');
+	variable_del('campaignmonitor_pastcampaignurl');
+  variable_del('campaignmonitor_connection_timeout');
+}
+
+/**
+ * Updates from one list to multiple
+ */
+function campaignmonitor_update_6200() {
+	$ret = array();
+	
+	$list_id = variable_get('campaignmonitor_list_id', '');
+	if($list_id != '') {
+		$ret[] = array('success' => TRUE, 'query' => 'You have now updated to multi list format, please make sure you go to the admin page to update your list details.');
+	}
+	variable_del('campaignmonitor_list_id');
+	
+  return $ret;
+}

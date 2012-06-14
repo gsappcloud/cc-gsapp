@@ -1,0 +1,14 @@
+<?php
+
+// Views args
+function gsappviews_views_pre_build(&$view) {
+	$view->get_arguments = $view->args;
+	if (in_array($view->name, array('all'))) {
+		$main_arg = $view->args[0];
+		
+		if (count($view->args)>0 && (int)$main_arg==0 && $main_arg!="all") {
+			$t = taxonomy_get_term_by_name($main_arg); 	
+			$view->args[0] = $t[0]->tid;
+		}
+	}		
+}

@@ -1,0 +1,7 @@
+@font-face {
+		font-family: 'Neutra';
+		src: local('☺'), url('type/neutra2text-book-webfont.woff') format('woff'), url('type/neutra2text-book-webfont.ttf') format('truetype'), url('type/neutra2text-book-webfont.svg#webfontPfWHITAG') format('svg'), url('type/Neutra2Text-Book.otf') format('opentype');
+		font-weight: normal;
+		font-style: normal;
+		font-size-adjust:.41;
+	}

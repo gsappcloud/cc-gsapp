@@ -1,0 +1,15 @@
+name = Imagecache Canvas Actions
+description = Actions for manipulating image canvases layers, including watermark and background effect. Also an aspect switcher (portrait/landscape)
+dependencies[] = imagecache
+dependencies[] = imageapi
+dependencies[] = imagecache_actions
+package = ImageCache
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2011-06-03
+version = "6.x-2.x-dev"
+core = "6.x"
+project = "imagecache_actions"
+datestamp = "1307060527"
+

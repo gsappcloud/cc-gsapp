@@ -1,0 +1,12 @@
+; $Id$
+name = Shorten URLs Input Filter
+description = "Provides an input filter that replaces URLs with a shortened version."
+core = 6.x
+dependencies[] = shorten
+
+; Information added by drupal.org packaging script on January 1, 1970 - 00:00
+version = "6.x-1.11"
+core = "6.x"
+project = "shorten"
+datestamp = "1295770302"
+

@@ -1,0 +1,37 @@
+#wrapper {
+	position:relative;
+	border:1px solid #CCC;
+	padding:20px;
+	width:420px;
+}
+
+img {
+	max-width:200px;
+	display:inline-block;
+	margin:0 10px 10px 0;
+	vertical-align:top;
+}
+
+img.active {
+	border:5px solid #1eff00;
+}
+
+.loading { margin:15px 0 0 0; }
+
+#note-form { display:none; }
+strong {
+	display:block;
+	margin:0 0 5px 0;
+}
+
+div.link-field-column {
+  float: left;
+  width: 48%;
+}
+
+div.link-field-column .form-text {
+  width: 95%;
+}
+
+
+#submit { display:none; font:11px Verdana, Helvetica, Arial, sans-serif; }

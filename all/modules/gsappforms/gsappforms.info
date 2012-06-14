@@ -1,0 +1,6 @@
+name = GSAPP Forms
+description = Modify Forms
+package = GSAPP
+version = 1.0
+core = 6.x
+

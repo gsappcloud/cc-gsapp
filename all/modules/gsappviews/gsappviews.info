@@ -1,0 +1,7 @@
+name = GSAPP Views
+description = Custom methods for Views
+dependencies[] = views
+package = GSAPP
+version = 1.0
+core = 6.x
+

@@ -1,0 +1,7 @@
+name = GSAPP Facebook
+description = Publish node to facebook fan page
+dependencies[] = fbconnect
+package = GSAPP
+version = 1.0
+core = 6.x
+

@@ -1,0 +1,18 @@
+name = Imagecache Test Suite
+description = Displays a collection of demo presets.
+dependencies[] = imagecache
+package = ImageCache
+core = 6.x
+
+features[imagecache][] = 'default'
+features[imagecache][] = 'scale'
+features[imagecache][] = 'corners_combo'
+features[imagecache][] = 'relative_canvas'
+features[imagecache][] = 'scale_canvas'
+features[imagecache][] = 'scale_rotate'
+; Information added by drupal.org packaging script on 2011-06-03
+version = "6.x-2.x-dev"
+core = "6.x"
+project = "imagecache_actions"
+datestamp = "1307060527"
+

@@ -1,0 +1,22 @@
+name = mulpo
+description = Minimalistic two-column theme.
+screenshot = images/screenshot.png
+core = 6.x
+engine = phptemplate
+features[] = name
+features[] = slogan
+features[] = favicon
+features[] = primary_links
+stylesheets[all][] = style.css
+regions[left] = Left sidebar
+regions[footer] = Footer
+regions[content_top]    = content top
+regions[content_bottom] = content bottom
+regions[header]         = header
+regions[closure_region] = closure
+; Information added by drupal.org packaging script on 2009-07-02
+version = "6.x-1.0-beta1"
+core = "6.x"
+project = "mulpo"
+datestamp = "1246559491"
+

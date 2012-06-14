@@ -1,0 +1,259 @@
+# French translation of Drupal (general)
+# Copyright 2009 Jean-Philippe Fleury <contact@jpfleury.net>
+# Generated from files:
+#  pagination.module,v 1.1.2.22 2009/02/21 02:47:36 mundowen
+#  pagination.info,v 1.1.2.1 2008/10/20 06:52:50 mundowen
+#  pagination.install,v 1.1.2.7 2009/02/19 04:53:23 mundowen
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1\n"
+"POT-Creation-Date: 2009-02-27 14:29-0500\n"
+"PO-Revision-Date: 2009-03-09 14:29-0500\n"
+"Last-Translator: Jean-Philippe Fleury <contact@jpfleury.net>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: pagination.module:39
+msgid "<p>Each node type (<em>Page</em>, <em>Story</em>, etc...) may be set to paginate automatically (separated by an arbitrary number of words per page), or manually, by using either custom page breaks within your content, or @tag tags.</p>\n        <ul>\n          <li><strong>Default paging</strong>: Use Drupal's default pager to show pagination.</li>\n          <li><strong>Table of contents</strong>: Use a Table of Contents to show pagination.</li>\n          <li><strong>Default + ToC</strong>: Display both default pager and table of contents.</li>\n        </ul>\n        <p>In addition, the Table of Contents may be displayed as a <a href=\"!url\">block</a>.</p>"
+msgstr "<p>Chaque type de noeud (<em>Page</em>, <em>Article</em>, etc...) peut être configuré pour être paginé automatiquement (selon un nombre quelconque de mots par page), ou manuellement, en utilisant soit un saut de page personnalisé à l'intérieur du contenu, soit les balises @tag.</p>\n        <ul>\n          <li><strong>Pagination par défaut</strong>: utilise la navigation par défaut de Drupal pour afficher la pagination.</li>\n          <li><strong>Table des matières</strong>: utilise une table des matières pour afficher la pagination.</li>\n          <li><strong>Par défaut + TdM</strong>: affiche la navigation par défaut ainsi que la table des matières.</li>\n        </ul>\n        <p>De plus, la table des matières peut être affichée comme un <a href=\"!url\">bloc</a>.</p>"
+
+#: pagination.module:48
+msgid "<p>Pagination (Node) allows the main content of arbitrary node types (<em>Page</em>, <em>Story</em>, etc...) to be paginated according to one of three methods:</p>\n        <ul>\n          <li><strong>Method 1</strong>: Content is paginated by a selectable \"words per page\" count.</li>\n          <li><strong>Method 2</strong>: Content is paginated by manual breaks, inserted by the content creator.</li>\n          <li><strong>Method 3</strong>: Content is paginated by manual breaks, based on @h3 tags.</li>\n        </ul>\n        <p>Method 1 allows for quick and easy pagination, and is ideal for users who are looking to have their longer content split into multiple pages with the least amount of hassle. Just select the \"words per page\" threshold for a particular content type, and all existing and future nodes of that type will be automatically paginated accordingly.</p>\n        <p>Methods 2 and 3 allow for fine-tuned control over pagination breaks, useful for content creators who need to set specific break points in their content.</p>\n        <p>note: To use Method 3 pagination, make sure @h3 tags are allowed under your <a href=\"!url\">Input Filters</a>.</p>\n        <h3>Pager Display</h3>\n        <p>Pagination (Node) offers two styles of pager display. The default display uses Drupal's pagination, which shows as a collection of page numbers, including typical pager controls (such as <em>next page</em>, <em>previous page</em>, etc...). In addition to that, Pagination (Node) allows administrators to utilize a \"Table of Contents\" style list, which creates an index of pages, mapped to an optional page name. Content types may be adjusted to display the default pager, the table of contents pager, or both simultaneously.</p>\n        <p>The \"Table of Contents\" may also be displayed as a block.</p>\n        <h3>Page Headings</h3>\n        <p>If a particular Content type is set to display a \"Table of Contents\" style list, page headings may be added for each page under any method. Methods 2 and 3 offer the more straight forward approaches, as content creators can add the page heading specifically in the page break: <em>ie. [ header = Sample Page Header ] or @h3Sample Page Header@h3end</em>. Regardless of paging method chosen, pages which do not have a specific title set will default to \"<em>Page x</em>\" within the table of contents. The only exception is the first page, which will always be the original title of the content.</p>\n        <p>To set page titles under method 1, content creators may enter a collection of page titles while creating / updating their content. The interface will show the expected number of pages the content will have, and content creators may add a page titles (one per line) to match that number. The page estimate will be updated periodically while content is being added or updated.</p>\n        <h3>Theming Notes</h3>\n        <p>The default pager will respect alterations via the theme_pager hook. The table of contents may likewise be modified. Table of contents links are handled through theme_item_list. In addition, the ToC may be modified by the presence of a toc.tpl.php file in your theme. The ToC is a container (<em>id=\"pagination-toc\"</em>), while the ToC menu may be styled based on their respective classes (<em>class=\"pagination-toc-list\"</em> and <em>class=\"pagination-toc-item\"</em>).</p>"
+msgstr "<p>Pagination (noeud) permet de paginer le corps d'un noeud de type quelconque (<em>Page</em>, <em>Article</em>, etc...) selon l'une des trois méthodes suivantes:</p>\n        <ul>\n          <li><strong>Méthode 1</strong>: le contenu est paginé selon un nombre de mots par page.</li>\n          <li><strong>Méthode 2</strong>: le contenu est paginé grâce à des sauts de page manuels insérés par l'auteur du contenu.</li>\n          <li><strong>Méthode 3</strong>: le contenu est paginé grâce à des sauts de page manuels basés sur les balises @h3.</li>\n        </ul>\n        <p>La méthode 1 permet de mettre en oeuvre la pagination rapidement et facilement, et est parfaite pour les utilisateurs qui veulent diviser leur long contenu en plusieurs pages, et ce avec le moins d'effort possible. Pour ce faire, sélectionner simplement une limite de mots par page pour un type de contenu particulier, et tous les noeuds déjà créés ou futurs de ce type seront automatiquement paginés selon cette valeur.</p>\n        <p>Les méthodes 2 et 3 permettent un contrôle plus poussé relativement aux sauts de page, ce qui est utile aux auteurs qui ont besoin de placer des sauts spécifiques dans leur contenu.</p>\n        <p>Note: pour utiliser la méthode 3, s'assurer que les balises @h3 sont permises dans les <a href=\"!url\">filtres d'entrée</a>.</p>\n        <h3>Affichage de la navigation</h3>\n        <p>Pagination (noeud) offre deux modes d'affichage pour la navigation. L'affichage par défaut utilise la barre de pagination de Drupal, qui se présente comme une suite de numéros de page, incluant les autres liens habituels (comme <em>suivant</em>, <em>précédent</em>, etc...). De plus, Pagination (noeud) permet aux administrateurs de mettre en place une navigation par table des matières, qui crée un index de pages, avec optionnellement un nom pour chaque page. Les types de contenu peuvent être paramétrés pour afficher la navigation par défaut, ou la navigation par table des matières, ou les deux en même temps.</p>\n        <p>La table des matières peut aussi être affichée comme un bloc.</p>\n        <h3>Titres de page</h3>\n        <p>Si un type de contenu particulier est paramétré pour afficher une navigation par table des matières, des titres peuvent être ajoutés pour chaque page, peu importe la méthode de pagination. Les méthodes 2 et 3 constituent l'approche la plus simple puisque les auteurs peuvent ajouter le titre de page directement dans le saut de page: <em>par exemple [ header = Titre de page ] ou @h3Titre de page@h3end</em>. Peu importe la méthode de pagination choisie, les pages n'ayant pas de titre spécifique s'afficheront dans la table des matières comme ceci: <em>Page x</em>. La seule exception concerne la première page, pour laquelle le titre original du contenu sera toujours utilisé.</p>\n        <p>Pour paramétrer les titres de page avec la méthode 1, les auteurs peuvent saisir une suite de titres lors de la création ou de la modification de leur contenu. L'interface affiche une estimation du nombre de pages dans lesquelles le contenu sera réparti, et les auteurs peuvent ajouter les titres de page (un par ligne), en respectant le nombre de pages estimé. L'estimation du nombre de pages est mis à jour périodiquement au fil de l'ajout ou de la mise à jour du contenu.</p>\n        <h3>Notes au sujet des thèmes</h3>\n        <p>La navigation par défaut prend en compte les modifications apportées par le hook theme_pager. La table des matières peut être modifiée de la même façon. Les liens de la table des matières sont traités par theme_item_list. De plus, la TdM peut être modifiée grâce à la présence d'un fichier toc.tpl.php dans votre thème. La TdM est un conteneur (<em>id=\"pagination-toc\"</em>), alors que le menu de la TdM peut être stylisé par ses classes respectives (<em>class=\"pagination-toc-list\"</em> and <em>class=\"pagination-toc-item\"</em>).</p>"
+
+#: pagination.module:100
+msgid "No pagination"
+msgstr "Aucune pagination"
+
+#: pagination.module:101
+msgid "Manual break - custom"
+msgstr "Saut manuel - personnalisé"
+
+#: pagination.module:102
+msgid "Manul break - <h3>"
+msgstr "Saut manuel - <h3>"
+
+#: pagination.module:112
+msgid "Default paging"
+msgstr "Pagination par défaut"
+
+#: pagination.module:113
+msgid "Default paging + Table of Contents"
+msgstr "Pagination par défaut + Table des matières"
+
+#: pagination.module:114;248;357
+msgid "Table of Contents"
+msgstr "Table des matières"
+
+#: pagination.module:117
+msgid "h1"
+msgstr "h1"
+
+#: pagination.module:117
+msgid "h2"
+msgstr "h2"
+
+#: pagination.module:117
+msgid "h3"
+msgstr "h3"
+
+#: pagination.module:117
+msgid "h4"
+msgstr "h4"
+
+#: pagination.module:117
+msgid "h5"
+msgstr "h5"
+
+#: pagination.module:117
+msgid "h6"
+msgstr "h6"
+
+#: pagination.module:135
+msgid "Disable pagination for a specific node"
+msgstr "Désactiver la pagination pour un noeud spécifique"
+
+#: pagination.module:136
+msgid "Place the node ids of nodes you wish to avoid pagination. Separate multiple node ids. ex: \"1, 5, 7\" will ignore nodes 1, 5, and 7"
+msgstr "Saisir l'id de chaque noeud pour lesquels vous voulez désactiver la pagination. Séparer les id si plus d'un est saisi. Par exemple, «1, 5, 7» va faire ignorer les noeuds 1, 5, et 7."
+
+#: pagination.module:141
+msgid "Header tag"
+msgstr "Header tag"
+
+#: pagination.module:142
+msgid "Alter the header tag to paginate on under manual break (Default: !tag)"
+msgstr "Alter the header tag to paginate on under manual break (Default: !tag)"
+
+#: pagination.module:148
+msgid "Provide a \"Show full page\" link"
+msgstr "Ajoute un lien «Afficher sur une seule page»"
+
+#: pagination.module:149
+msgid "Enable a \"Show full page\" link below the content."
+msgstr "Ajoute un lien «Afficher sur une seule page» en-dessous du contenu."
+
+#: pagination.module:154
+msgid "Use 1 based pagers"
+msgstr "Use 1 based pagers"
+
+#: pagination.module:155
+msgid "Enable 1 based pagers (Drupal by default uses 0 based pagers)"
+msgstr "Enable 1 based pagers (Drupal by default uses 0 based pagers)"
+
+#: pagination.module:160
+msgid "Collapse \"Page Headers\" help text"
+msgstr "Collapse \"Page Headers\" help text"
+
+#: pagination.module:161
+msgid "Collapse \"Page Headers\" help text by default during node creation / editing (Default collapsed)"
+msgstr "Collapse \"Page Headers\" help text by default during node creation / editing (Default collapsed)"
+
+#: pagination.module:166
+msgid "Disable stale header filtering"
+msgstr ""
+
+#: pagination.module:167
+msgid "Filters out old manual break pagination syntax. This prevents syntax like \"[pagebreak]\" from showing up in node types that are no longer paginated. (Default, filter old syntax)"
+msgstr "Filters out old manual break pagination syntax. This prevents syntax like \"[pagebreak]\" from showing up in node types that are no longer paginated. (Default, filter old syntax)"
+
+#: pagination.module:172
+msgid "Set pagination"
+msgstr "Configurer la pagination"
+
+#: pagination.module:204
+msgid "Pagination settings have been updated."
+msgstr "La configuration de la pagination a été mise à jour."
+
+#: pagination.module:211
+msgid "Content type"
+msgstr "Type du contenu"
+
+#: pagination.module:211 pagination.info:0
+msgid "Pagination"
+msgstr "Pagination"
+
+#: pagination.module:211
+msgid "Pagination style"
+msgstr "Mode de pagination"
+
+#: pagination.module:232
+msgid "Table of Contents - Pagination"
+msgstr "Table des matières - Pagination"
+
+#: pagination.module:351
+msgid "Pagination pager"
+msgstr "Navigation de la pagination"
+
+#: pagination.module:352
+msgid "Pager"
+msgstr "Navigation"
+
+#: pagination.module:356
+msgid "Pagination Table of Contents"
+msgstr "Pagination Table des matières"
+
+#: pagination.module:388
+msgid "Show full page"
+msgstr "Afficher sur une seule page"
+
+#: pagination.module:388
+msgid "Show paged"
+msgstr "Afficher sur plusieurs pages"
+
+#: pagination.module:420;443
+msgid "Page headers"
+msgstr "Pagination et titres"
+
+#: pagination.module:427
+msgid "If you would like your article to flow over more than one page, insert a page break within the body of your content at a convenient location:"
+msgstr "Si vous souhaitez faire afficher votre publication sur plus d'une page, insérez un saut de page dans le corps de votre publication à l'endroit désiré."
+
+#: pagination.module:428
+msgid "<em>ex. <strong>[ pagebreak ]</strong></em>"
+msgstr "<em>ex.: <strong>[ pagebreak ]</strong></em>"
+
+#: pagination.module:429
+msgid "In addition, you may set a title for the specific page by using this syntax instead:"
+msgstr "De plus, vous pouvez préciser un titre pour la page en utilisant plutôt cette syntaxe:"
+
+#: pagination.module:430
+msgid "<em>ex. <strong>[ header = My Section Title ]</strong></em>"
+msgstr "<em>ex.: <strong>[ header = Le titre de la section de ma publication ]</strong></em>"
+
+#: pagination.module:433
+msgid "Your article pages will break according to the presence of @tag tags. The contents of your @tag will be used as the page title."
+msgstr "Votre publication sera paginée selon la présence des balises @tags. Le contenu des @tags sera utilisé comme titre de page."
+
+#: pagination.module:443
+msgid "You may declare page headers here. The first line represents the title of the 2nd page. Note: the page estimate may be underestimated by one page (or so) in certain circumstances."
+msgstr "Vous pouvez préciser les titres de page dans ce champ. La première ligne représente le titre de la deuxième page. Note: l'estimation du nombre de pages peut différer de la réalité d'environ une page dans certaines circonstances."
+
+#: pagination.module:445
+msgid "<div>Current page estimate: <span id=\"pagination-guess\">1 page</span> (<span id=\"pagination-count\">%words</span> words per page)</div>"
+msgstr "<div>Estimation du nombre de pages: <span id=\"pagination-guess\">1 page</span> (<span id=\"pagination-count\">%words</span> mots par page)</div>"
+
+#: pagination.module:627
+msgid "Go to page !page"
+msgstr "Aller à la page !page"
+
+#: pagination.module:640
+msgid "Table of Contents:"
+msgstr "Table des matières:"
+
+#: pagination.module:677
+msgid "Page 1"
+msgstr "Page 1"
+
+#: pagination.module:701;721;733
+msgid "Page !num"
+msgstr "Page !num"
+
+#: pagination.module:23
+msgid "Pagination (Node)"
+msgstr "Pagination (noeud)"
+
+#: pagination.module:24
+msgid "Allow for arbitrary nodes to be paginated."
+msgstr "Permet de paginer des noeuds quelconques."
+
+#: pagination.module:0
+msgid "pagination"
+msgstr "pagination"
+
+#: pagination.install:29
+msgid "Extends the {node_type} table with a pagination value."
+msgstr "Étend la table {node_type} par une valeur de pagination."
+
+#: pagination.install:35
+msgid "The {node_type} to enable pagination on."
+msgstr "Le {node_type} pour lequel la pagination sera effective."
+
+#: pagination.install:42
+msgid "The approximate number of words per page while paginating."
+msgstr "Le nombre approximatif de mots par page lors de la pagination."
+
+#: pagination.install:49
+msgid "The paging display style."
+msgstr "Le mode d'affichage de la pagination."
+
+#: pagination.install:58;94
+msgid "Allows storage of page headers for a specific node under automatic paging."
+msgstr "Permet l'enregistrement de titres de page pour un noeud quelconque selon un mode automatique de pagination."
+
+#: pagination.install:65;101
+msgid "The node id associated with the stored page headers."
+msgstr "L'id d'un noeud associé aux titres de page mémorisés."
+
+#: pagination.install:70;106
+msgid "A serialized array of headers associated with a specific node id."
+msgstr "Un tableau linéarisé de titres associés à l'id d'un noeud."
+
+#: pagination.info:0
+msgid "Allows arbitrary nodes to be paginated based automatic or manual paging"
+msgstr "Permet de paginer des noeuds quelconques selon un mode automatique ou manuel"
+

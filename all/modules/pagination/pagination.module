@@ -1,0 +1,793 @@
+<?php
+//  $Id: pagination.module,v 1.1.2.40 2010/07/18 21:26:36 mundowen Exp $
+
+/**
+ *  @file   pagination.module
+ *  @desc   Allow for arbitrary nodes to be paginated. administrators can set which nodes
+ *          they wish to paginate, and the length of content required to split a node into
+ *          pages. Alternatively, content creators can set manual break points if the content
+ *          type is set to page manually.
+ */
+define('PAGINATION_DEFAULT', 0);  //  using default pager
+define('PAGINATION_DUAL', 1);     //  using default pager + toc display
+define('PAGINATION_TOC', 2);      //  using toc display
+define('PAGINATION_CUSTOM', 1);   //  using custom headers ex: [header = TITLE]
+define('PAGINATION_TAG', 2);      //  using tagged headers ex: <h3>TITLE</h3>
+define('PAGINATION_AUTO', 5);     //  using words per page
+
+/**
+ *  @desc   Implementation of hook_menu()
+ */
+function pagination_menu()  {
+  $menu['admin/settings/pagination']  =  array(
+    'title'             =>  'Pagination (Node)',
+    'description'       =>  'Allow for arbitrary nodes to be paginated.',
+    'page callback'     =>  'drupal_get_form',
+    'page arguments'    =>  array('pagination_admin_settings'),
+    'access arguments'  =>  array('administer site configuration'),
+    'type'              =>  MENU_NORMAL_ITEM,
+  );
+  return $menu;
+}
+
+/**
+ *	@desc   Implementation of hook_help()
+ */
+function pagination_help($path, $arg = null)  {
+  switch ($path)  {
+    case 'admin/settings/pagination':
+      return t('<p>Each node type (<em>Page</em>, <em>Story</em>, etc...) may be set to paginate automatically (separated by an arbitrary number of words per page), or manually, by using either custom page breaks within your content, or @tag tags.</p>
+        <ul>
+          <li><strong>Default paging</strong>: Use Drupal\'s default pager to show pagination.</li>
+          <li><strong>Table of contents</strong>: Use a Table of Contents to show pagination.</li>
+          <li><strong>Default + ToC</strong>: Display both default pager and table of contents.</li>
+        </ul>
+        <p>In addition, the Table of Contents may be displayed as a <a href="!url">block</a>.</p>', array('@tag' => '<h3>', '!url' => url('admin/build/block') ) );
+      break;
+    case 'admin/help#pagination':
+      return t('<p>Pagination (Node) allows the main content of arbitrary node types (<em>Page</em>, <em>Story</em>, etc...) to be paginated according to one of three methods:</p>
+        <ul>
+          <li><strong>Method 1</strong>: Content is paginated by a selectable "words per page" count.</li>
+          <li><strong>Method 2</strong>: Content is paginated by manual breaks, inserted by the content creator.</li>
+          <li><strong>Method 3</strong>: Content is paginated by manual breaks, based on @h3 tags.</li>
+        </ul>
+        <p>Method 1 allows for quick and easy pagination, and is ideal for users who are looking to have their longer content split into multiple pages with the least amount of hassle. Just select the "words per page" threshold for a particular content type, and all existing and future nodes of that type will be automatically paginated accordingly.</p>
+        <p>Methods 2 and 3 allow for fine-tuned control over pagination breaks, useful for content creators who need to set specific break points in their content. Method 2 paginates content based on the presence of break tags ([pagebreak] or [ header = SOME TITLE ]), whereas Method 3 paginates based on @h3 elements.</p>
+        <p>note: To use Method 3 pagination, make sure @h3 tags are allowed under your <a href="!url">Input Filters</a>.</p>
+        <h3>Pager Display</h3>
+        <p>Pagination (Node) offers two styles of pager display. The default display uses Drupal\'s pagination, which shows as a collection of page numbers, including typical pager controls (such as <em>next page</em>, <em>previous page</em>, etc...). In addition to that, Pagination (Node) allows administrators to utilize a "Table of Contents" style list, which creates an index of pages, mapped to an optional page name. Content types may be adjusted to display the default pager, the table of contents pager, or both simultaneously.</p>
+        <p>The "Table of Contents" may also be displayed as a block.</p>
+        <h3>Page Headings</h3>
+        <p>If a particular Content type is set to display a "Table of Contents" style list, page headings may be added for each page under any method. Methods 2 and 3 offer the more straight forward approaches, as content creators can add the page heading specifically in the page break: <em>ie. [ header = Sample Page Header ] or @h3Sample Page Header@h3end</em>. Regardless of paging method chosen, pages which do not have a specific title set will default to "<em>Page x</em>" within the table of contents. The only exception is the first page, which will always be the original title of the content.</p>
+        <p>To set page titles under method 1, content creators may enter a collection of page titles while creating / updating their content. The interface will show the expected number of pages the content will have, and content creators may add a page titles (one per line) to match that number. The page estimate will be updated periodically while content is being added or updated.</p>
+        <h3>Theming Notes</h3>
+        <p>The default pager will respect alterations via the theme_pager hook. The table of contents may likewise be modified. Table of contents links are handled through theme_item_list. In addition, the ToC may be modified by the presence of a toc.tpl.php file in your theme. The ToC is a container (<em>id="pagination-toc"</em>), while the ToC menu may be styled based on their respective classes (<em>class="pagination-toc-list"</em> and <em>class="pagination-toc-item"</em>).</p>
+        <h3>Preprocess Variables</h3>
+        <p>Two preprocess variables are available in node.tpl.php. <em>$pagination->page_header</em> is the current page\'s header, (defaults to "Page #" if there is no custom header), while <em>$pagination->page_number</em> is the current, 0 based page number (ie. <em>$pagination->page_number</em> is set to 0 for page 1).</p>', array('@h3' => '<h3>', '@h3end' => '</h3>', '!url' => url('admin/settings/filters') ) );
+      break;
+  }
+}
+
+/**
+ *  @desc   Implementation of hook_theme()
+ */
+function pagination_theme() {
+  $theme['pagination_toc'] = array(
+    'arguments' => array(
+      'toc'   =>  null,
+      'title' =>  null,
+      'pages' =>  array(),
+    ),
+    'template' => 'toc',
+  );
+  $theme['pagination_admin_settings'] = array(
+    'arguments' => array(
+      'form' => null,
+    ),
+    'function' => 'theme_pagination_admin_settings',
+  );
+  return $theme;
+}
+
+/**
+ *  @desc   Pagination configuration
+ */
+function pagination_admin_settings() {
+  $pg     =&  Pagination::getInstance();
+  $options =  node_get_types('names');
+
+  // Drupal's theme_table runs values through check_plain, no need to escape HTML here
+  // see: theme_pagination_admin_settings()
+  $pagetypes = array(
+    0     =>  t('No pagination'),
+    1     =>  t('Manual break - custom'),
+    2     =>  t('Manual break - <h!num>', array('!num' => variable_get('pagination_header', 3) ) ),
+    150   =>  150,
+    300   =>  300,
+    450   =>  450,
+    600   =>  600,
+    750   =>  750,
+    1000  =>  1000
+  );
+
+  $pagestyles = array(
+    0 =>  t('Default paging'),
+    1 =>  t('Default paging + Table of Contents'),
+    2 =>  t('Table of Contents'),
+  );
+
+  $headers = array(1 => t('h1'), 2 => t('h2'), 3 => t('h3'), 4 => t('h4'), 5 => t('h5'), 6 => t('h6') );
+
+  foreach($options as $type=>$node) {
+    $form[$type]['pagination'] = array(
+      '#type'           =>  'select',
+      '#name'           =>  "pagination[{$type}]",
+      '#default_value'  =>  $pg->getValue($type),
+      '#options'        =>  $pagetypes,
+    );
+    $form[$type]['style'] = array(
+      '#type'           =>  'select',
+      '#name'           =>  "style[{$type}]",
+      '#default_value'  =>  $pg->getStyle($type),
+      '#options'        =>  $pagestyles,
+    );
+  }
+  $form['pagination_ignore'] = array(
+    '#type'           =>  'textfield',
+    '#title'          =>  t('Disable pagination for a specific node'),
+    '#description'    =>  t('Place the node ids of nodes you wish to avoid pagination. Separate multiple node ids. ex: "1, 5, 7" will ignore nodes 1, 5, and 7'),
+    '#default_value'  =>  variable_get('pagination_ignore', ''),
+  );
+  $form['pagination_header'] = array(
+    '#type'           =>  'select',
+    '#title'          =>  t('Header tag'),
+    '#description'    =>  t('Alter the header tag to paginate on under manual break (Default: !tag)', array('!tag' => '&lt;h3&gt;') ),
+    '#options'        =>  $headers,
+    '#default_value'  =>  variable_get('pagination_header', 3),
+  );
+  $form['pagination_list_type'] = array(
+    '#type'           =>  'select',
+    '#title'          =>  t('List type'),
+    '#description'    =>  t('Alter the list type of the table of contents (Default: unordered list)'),
+    '#options'        =>  array('ul' => 'Unordered list', 'ol' => 'Ordered list'),
+    '#default_value'  =>  variable_get('pagination_list_type', 'ul'),
+  );
+  $form['pagination_showall'] = array(
+    '#type'           =>  'checkbox',
+    '#title'          =>  t('Provide a "Show full page" link'),
+    '#description'    =>  t('Enable a "Show full page" link below the content.'),
+    '#default_value'  =>  variable_get('pagination_showall', 1),
+  );
+  $form['pagination_onebased'] = array(
+    '#type'           =>  'checkbox',
+    '#title'          =>  t('Use 1 based pagers'),
+    '#description'    =>  t('Enable 1 based pagers (Drupal by default uses 0 based pagers)'),
+    '#default_value'  =>  variable_get('pagination_onebased', 1),
+  );
+  $form['pagination_collapsed'] = array(
+    '#type'           =>  'checkbox',
+    '#title'          =>  t('Collapse "Page Headers" help text'),
+    '#description'    =>  t('Collapse "Page Headers" help text by default during node creation / editing (Default collapsed)'),
+    '#default_value'  =>  variable_get('pagination_collapsed', 1),
+  );
+  $form['pagination_filter'] = array(
+    '#type'           =>  'checkbox',
+    '#title'          =>  t('Disable stale header filtering'),
+    '#description'    =>  t('Filters out old manual break pagination syntax. This prevents syntax like "[pagebreak]" from showing up in node types that are no longer paginated. (Default, filter old syntax)'),
+    '#default_value'  =>  variable_get('pagination_filter', 1),
+  );
+  $form['submit'] = array(
+    '#type'   =>  'submit',
+    '#value'  =>  t('Set pagination'),
+  );
+  return $form;
+}
+
+/**
+ *  @desc   Pagination settings submission
+ */
+function pagination_admin_settings_submit($form, &$form_state)	{
+  $pagination = $form_state['values']['pagination'];
+  $style      = $form_state['values']['style'];
+  $showall    = $form_state['values']['pagination_showall'];
+  $ignore     = $form_state['values']['pagination_ignore'];
+  $onebased   = $form_state['values']['pagination_onebased'];
+  $header     = $form_state['values']['pagination_header'];
+  $listtype   = $form_state['values']['pagination_list_type'];
+  $showhelp   = $form_state['values']['pagination_collapsed'];
+  $filter     = $form_state['values']['pagination_filter'];
+//  sadly probably faster to just wipe the table and rebuild it then checking for existing records first
+  $query = "DELETE FROM {pagination}";
+  db_query($query);
+  variable_set('pagination_showall', (int) $showall);
+  variable_set('pagination_ignore', $ignore);
+  variable_set('pagination_onebased', (int) $onebased);
+  variable_set('pagination_header', (int) $header);
+  variable_set('pagination_list_type', $listtype);
+  variable_set('pagination_collapsed', (int) $showhelp);
+  variable_set('pagination_filter', (int) $filter);
+  foreach($pagination as $type=>$value)	{
+    if ($value > 0) {
+      $query = "INSERT INTO {pagination} (type, paginate, style) VALUES ('%s', %d, %d)";
+      db_query($query, $type, $value, $style[$type]);
+    }
+  }
+  drupal_set_message(t('Pagination settings have been updated.') );
+}
+
+/**
+ *  @desc   Themes the admin form as a table
+ */
+function theme_pagination_admin_settings($form)	{
+  $header = array(t('Content type'), t('Pagination'), t('Pagination style') );
+  $rows   = array();
+  foreach($form as $type=>$cell)  {
+  //  we just want rows of actual data, not form meta-data
+    if (isset($cell['pagination']) and is_array($cell['pagination']) )  {
+      $rows[] = array($type, drupal_render($cell['pagination']), drupal_render($cell['style']) );
+      unset($form[$type]);
+    }
+  }
+  $output =   theme('table', $header, $rows);
+  $output .=  drupal_render($form);
+  return $output;
+}
+
+/**
+ *  @desc   Implementation of hook_block()
+ */
+function pagination_block($op = 'list', $delta = 0, $edit = array() ) {
+  switch ($op)  {
+    case 'list':
+      $blocks[]  = array(
+        'info' => t('Table of Contents - Pagination'),
+      );
+      return $blocks;
+      break;
+
+    case 'view':
+      if (drupal_is_front_page() )  {
+        return;
+      }
+
+      $block  = null;
+      $nid    = arg(1);
+      if (arg(0) == 'node' and is_numeric($nid) )  {
+        $pg   =&  Pagination::getInstance();
+        if ($pg->getPageCount() > 1 and $pg->getPageVar() !== 'show')  {
+          $block = array(
+            'subject' => t('Table of Contents'),
+            'content' => $pg->getToc($nid),
+          );
+        }
+      }
+      return $block;
+      break;
+  }
+}
+
+/**
+ *  @desc   Implementation of hook_nodeapi()
+ */
+function pagination_nodeapi(&$node, $op, $teaser = null, $page = null)  {
+  switch ($op)  {
+    case 'delete':
+    //  fall through
+
+    case 'presave':
+      $pg     =&  Pagination::getInstance();
+      $style  =   $pg->getStyle($node->type);
+      $paging =   $pg->getValue($node->type);
+      if ($paging > PAGINATION_AUTO and $style > PAGINATION_DEFAULT) {
+        $query = "DELETE FROM {node_pagination} WHERE nid = %d";
+        db_query($query, $node->nid);
+
+        if ($op == 'presave' and $node->pagination_headers)  {
+          $headers  = explode("\n", str_replace("\r\n", "\n", $node->pagination_headers) );
+          $query    = "INSERT INTO {node_pagination} (nid, headers) VALUES (%d, '%s')";
+          db_query($query, $node->nid, serialize($headers) );
+        }
+      }
+      break;
+
+    case 'validate':
+      $pg     =&  Pagination::getInstance();
+      $style  =   $pg->getStyle($node->type);
+      $paging =   $pg->getValue($node->type);
+    //  add javascript for validation failure cases
+      if ($paging > PAGINATION_AUTO and $style > PAGINATION_DEFAULT)  {
+        drupal_add_js(drupal_get_path('module', 'pagination').'/pagination.js');
+      }
+      break;
+
+    case 'view':
+    //  main pagination fun
+      $pg     =&  Pagination::getInstance();
+      $page   =   $pg->getPageVar();
+      $paging =   $pg->getValue($node->type);
+      $style  =   $pg->getStyle($node->type);
+      $ignore =   array_map('trim', explode(',', variable_get('pagination_ignore', '') ) );
+      $build  =   $node->build_mode == NODE_BUILD_NORMAL;
+
+      if (!$teaser and $paging and $page !== 'show' and $build and !in_array($node->nid, $ignore, true) )    {
+        $pg->paginate($node->content['body']['#value'], $paging);
+        $node->content['body']['#value'] = $pg->getPage($page);
+
+        if ($style < PAGINATION_TOC)  {
+          $node->content['pagination_pager'] = array(
+            '#weight' =>  module_exists('content') ? content_extra_field_weight($node->type, 'pagination_pager') : 50,
+            '#value'  =>  $pg->getPager(),
+          );
+        }
+        if ($style > PAGINATION_DEFAULT and $pg->getPageCount() > 1)  {
+          $node->content['pagination_toc'] = array(
+            '#weight' =>  module_exists('content') ? content_extra_field_weight($node->type, 'pagination_toc') : -50,
+            '#value'  =>  $pg->getToc($node->nid),
+            '#total_pages' => $pg->getPageCount(),
+          );
+        }
+      }
+      break;
+  }
+}
+
+/**
+ *  @desc   Implementation of template_preprocess_node()
+ */
+function pagination_preprocess_node(&$variables) {
+  $teaser = isset($variables['node']->teaser) ? $variables['node']->teaser : false;
+
+  if (false == $teaser) {
+
+    $pg    =& Pagination::getInstance();
+    $style =  $pg->getStyle($variables['type']);
+
+    if ($style) {
+      $variables['pager'] = $pg->getPager();
+    }
+
+    if ($style || variable_get('pagination_filter', 1) ) {
+      $headers = $pg->getHeaders($variables['node']->nid);
+      $page    = $pg->getPageVar();
+      $variables['content']    = preg_replace($pg->re_custom, '', $variables['content']);
+      $variables['pagination'] = (object) array(
+        'page_header' => $headers[$page],
+        'page_number' => $page,
+      );
+    }
+  }
+
+}
+
+/**
+ *  @desc   Implementation of hook_content_extra_fields()
+ */
+function pagination_content_extra_fields($type)  {
+  $pg =& Pagination::getInstance();
+  if ($pg->getValue($type) )  {
+    return array(
+      'pagination_pager' => array(
+        'label'       =>  t('Pagination pager'),
+        'description' =>  t('Pager'),
+        'weight'      =>  50,
+      ),
+      'pagination_toc' => array(
+        'label'       =>  t('Pagination Table of Contents'),
+        'description' =>  t('Table of Contents'),
+        'weight'      =>  -50,
+      ),
+    );
+  }
+}
+
+/**
+ *  @desc   Implementation of hook_link_alter()
+ */
+function pagination_link_alter(&$links, $node)  {
+
+  if (array_key_exists('pagination-showall', $links) ) {
+    $showall['pagination-showall'] = $links['pagination-showall'];
+    unset($links['pagination-showall']);
+    $links = $showall + $links;
+  }
+
+}
+
+/**
+ *  @desc   Implementation of hook_link()
+ */
+function pagination_link($type, $object, $teaser = false)  {
+  $pg       =&  Pagination::getInstance();
+  $type     =   isset($object->type) ? $object->type : '';
+  $paging   =   $pg->getValue($type);
+  $count    =   $pg->getPageCount();
+  $page     =   $pg->getPageVar();
+  $showfull =   variable_get('pagination_showall', 1);
+
+  if (!$teaser and $paging and ($count > 1 or $page === 'show') and $showfull and $object->build_mode != NODE_BUILD_PRINT)  {
+    $query  = $page !== 'show' ? 'page=show' : null;
+    $title  = $page !== 'show' ? t('Show full page') : t('Show paged');
+    $class  = $page !== 'show' ? 'pagination-show-full-page' : 'pagination-show-paged';
+
+    $links['pagination-showall'] = array(
+      'title'       =>  $title,
+      'href'        =>  isset($object->path) ? $object->path : 'node/'.$object->nid,
+      'query'       =>  $query,
+      'attributes'  =>  array(
+        'title' => $title,
+        'class' => $class,
+      ),
+    );
+
+    return $links;
+  }
+}
+
+/**
+ *  @desc   Implementation of hook_form_alter()
+ */
+function pagination_form_alter(&$form, $form_state, $form_id) {
+  if ($form['#id'] != 'node-form')  {
+    return;
+  }
+
+  $pg     =& Pagination::getInstance();
+  $paging =  $pg->getValue($form['type']['#value']);
+  $style  =  $pg->getStyle($form['type']['#value']);
+  $help   =  '';
+
+  if ($paging)  {
+    $form['pagination'] = array(
+      '#type'         => 'fieldset',
+      '#collapsible'  => true,
+      '#collapsed'    => (boolean) variable_get('pagination_collapsed', 1),
+      '#title'        => t('Page headers'),
+      '#weight'       => -1,
+      '#attributes'   => array('class' => 'pagination-item-form'),
+    );
+
+    if ($paging == PAGINATION_CUSTOM) {
+    //  add helper text for manual paging (custom headers)
+      $help .=   '<p>'.t('If you would like your article to flow over more than one page, insert a page break within the body of your content at a convenient location:').'</p>';
+      $help .=  '<p>'.t('<em>ex. <strong>[ pagebreak ]</strong></em>').'</p>';
+      $help .=  '<p>'.t('In addition, you may set a title for the specific page by using this syntax instead:').'</p>';
+      $help .=  '<p>'.t('<em>ex. <strong>[ header = My Section Title ]</strong></em>').'</p>';
+    }
+    elseif ($paging == PAGINATION_TAG)  {
+      $help .=  '<p>'.t('Your article pages will break according to the presence of @tag tags. The contents of your @tag will be used as the page title.', array('@tag' => '<h3>') ).'</p>';
+    }
+    elseif ($paging > PAGINATION_AUTO and $style > PAGINATION_DEFAULT) {
+      drupal_add_js(drupal_get_path('module', 'pagination').'/pagination.js');
+      //  add helper text for default paging
+      $headers = isset($form['nid']['#value']) ? $pg->getHeaders($form['nid']['#value']) : array();
+      $form['pagination']['pagination_headers'] = array(
+        '#type'         =>  'textarea',
+        '#title'        =>  t('Page headers'),
+        '#rows'         =>  3,
+        '#description'  =>  t('You may declare page headers here. The first line represents the title of the 2nd page. Note: the page estimate may be underestimated by one page (or so) in certain circumstances.'),
+        '#default_value'=>  implode("\n", $headers),
+        '#suffix'       =>  t('<div>Current page estimate: <span id="pagination-guess">1 page</span> (<span id="pagination-count">%words</span> words per page)</div>', array('%words' => $paging) ),
+      );
+    }
+    $form['pagination']['#description'] = $help;
+  }
+}
+
+//  End of hooks, private functions follow  ------------------------------
+
+/**
+ *  @desc   Handles all the pagination logic
+ */
+class Pagination  {
+  /*  holds the paginated sections  */
+  var $page       = array();
+
+  /*  holds the headers for the pages */
+  var $headers    = array();
+
+  /*  holds the nodes paging style  */
+  var $style      = null;
+
+  /*  holds the nodes paging value  */
+  var $value      = null;
+
+  /*  regex to parse manual breaks  */
+  var $re_custom  = '/(<p>\s*)?\[\s*(pagebreak\s*\]|(header\s*=\s*([^\]]*)\]))(\s*<\/p>)?/mi';
+  
+  /*  regex to parse <h3> breaks  */
+  var $re_tag     = '/(<p>\s*)?<h3>\s*(.*?)\s*<\/h3>(\s*<\/p>)?/mi';
+  
+  /**
+   *  @desc   Static call to return a single instance
+   *  @return object  Pagination
+   *  @static
+   */
+  function getInstance()  {
+    static $pagination = array();
+    if (empty($pagination) )  {
+      $pagination['instance'] =& new Pagination();
+    }
+    return $pagination['instance'];
+  }
+
+  /**
+   *  @desc   Paginate text
+   *  @param  string  text to paginate
+   *  @param  int     size of text to make breaks at
+   *  @return void
+   *  @public
+   */
+  function paginate($text, $cutoff)    {
+    $textsize = strlen($text);
+    do {
+      $section      = $this->parseText($text, $cutoff);
+      $this->page[] = $section;
+      $textsize     = strlen($text);
+    }
+    while ($textsize > 0);
+  }
+
+  /**
+   *  @desc   Get pagination style
+   *  @param  string  node type
+   *  @return int     pagination style
+   *  @public
+   */
+  function getStyle($type)  {
+    $this->style = $this->getSettings('style', $type);
+    return $this->style;
+  }
+
+  /**
+   *  @desc   Get pagination value
+   *  @param  string  node type
+   *  @return int     pagination value
+   *  @public
+   */
+  function getValue($type)  {
+    $this->value = $this->getSettings('value', $type);
+    return $this->value;
+  }
+
+  /**
+   *  @desc   Get page headers
+   *  @param  int     nid
+   *  @return array   page headers
+   *  @public
+   */
+  function getHeaders($nid = 0) {
+    if (!$nid)  {
+      return array();
+    }
+
+    static $query;
+    if (!$query and $this->value > PAGINATION_AUTO)  {
+      $query    = 'SELECT headers FROM {node_pagination} WHERE nid = %d';
+      $result   = db_query($query, $nid);
+      $get      = db_fetch_object($result);
+      $headers  = isset($get->headers) ? unserialize($get->headers) : array();
+      foreach($headers as $key=>$header)  {
+      //  Page 1 is always the node title
+        $this->headers[$key + 1] = $header;
+      }
+    }
+    return $this->headers;
+  }
+  
+  /**
+   *  @desc   Get page count
+   *  @return int     total page count
+   *  @public
+   */
+  function getPageCount() {
+    return count($this->page);
+  }
+  
+  /**
+   *  @desc   Get page section
+   *  @param  int     current page
+   *  @return string  page section
+   *  @public
+   */
+  function getPage($page) {
+    $section = isset($this->page[$page]) ? $this->page[$page] : '';
+    return $section;
+  }
+
+  /**
+   *  @desc   Get value of $_GET['page']
+   *  @return int     value of $_GET['page']
+   *  @public
+   */
+  function getPageVar() {
+    $page = isset($_GET['page']) ? $_GET['page'] : 0;
+    if (variable_get('pagination_onebased', 1) == 1) {
+      $page = $page > 0 ? --$page : $page;
+    }
+    return $page; 
+  }
+
+  /**
+   *  @desc   Get a themed pager (Drupal default)
+   *  @return string  themed pager
+   *  @public
+   */
+  function getPager() {
+    global $pager_page_array, $pager_total;
+    $pager_page_array     = explode(',', (int) $this->getPageVar() );
+    $pager_total[0]       = $this->getPageCount();
+    $pager_page_array[0]  = max(0, min( (int) $pager_page_array[0], (int) $pager_total[0]) );
+    $pager                = theme('pager', null, 1, 0);
+
+  //  Drupal default pager is 0 based, we'll use 1 based for ours
+    if (variable_get('pagination_onebased', 1) ) {
+      $regex  = '#(\?|\&)page=(.+?)(\"|&|/)#se';
+      $pager  = preg_replace($regex, "'$1page='.($2 + 1).''.stripslashes('$3').''", $pager);
+    }
+    return $pager;
+  }
+
+  /**
+   *  @desc   Get a themed Table of Contents
+   *  @param  int     nid
+   *  @return string  themed ToC
+   *  @public
+   */
+  function getToc($nid) {
+    if (!$nid) {
+      return;
+    }
+
+    drupal_add_css(drupal_get_path('module', 'pagination').'/pagination.css');
+    $toc        = array();
+    $headers    = $this->getHeaders($nid);
+    $headers[0] = menu_get_active_title();
+
+    foreach($headers as $key=>$header)  {
+      $page   = $key + 1;
+      $header = str_replace(array('<br />', '<br>'), '', $header);
+      $options = array(
+        'attributes' => array(
+          'title' => t('Go to page !page', array('!page' => $page) ),
+        ),
+        'query' => 'page=' . $page,
+      );
+      $toc[]  = array(
+        'data'  =>  ($this->getPageVar() == $key) ? check_plain($header) : l($header, $_GET['q'], $options),
+        'class' =>  ($this->getPageVar() == $key) ? 'pagination-toc-item current' : 'pagination-toc-item',
+      );
+    }
+    
+    $items = theme('item_list', $toc, null, variable_get('pagination_list_type', 'ul'), array('class' => 'pagination-toc-list') );
+  //  avoid problems with special chars displaying, likely not an exhaustive regex
+    $items = preg_replace('#&amp;(\S{2,7}[^;];)#e', "'&$1'", $items);
+    $toc = theme('pagination_toc', t('Table of Contents:'), drupal_get_title(), $items);
+    return $toc;
+  }
+
+  /**
+   *  @desc   Private method to get pagination settings by content type
+   *  @param  string  pagination setting
+   *  @param  string  node type
+   *  @return array   pagination settings
+   *  @private
+   */
+  function getSettings($setting, $type) {
+    static $pagination = array();
+    if (!isset($pagination[$type]) ) {
+      $query  = "SELECT paginate, style FROM {pagination} WHERE type = '%s'";
+      $result = db_query($query, $type);
+      $get    = db_fetch_object($result);
+      $pagination[$type] = array(
+        'style' =>  isset($get->style) ? $get->style : 0,
+        'value' =>  isset($get->paginate) ? $get->paginate : 0,
+      );
+    }
+    $result = isset($pagination[$type][$setting]) ? $pagination[$type][$setting] : 0;
+    return $result;
+  }
+
+  /**
+   *  @desc   Private method to set headers
+   *  @param  string  header
+   *  @void
+   *  @private
+   */
+  function setHeader($header) {
+    static $first;
+    if (!$first and $this->value < PAGINATION_AUTO)  {
+    //  Manual paging should have a default header set for page 1
+      $first = true;
+      $this->headers[]  = t('Page 1');
+    }
+    $this->headers[] = $header;
+  }
+
+  /**
+   *  @desc   Handle pagination depending on pagination style
+   *  @param  string  text to paginate
+   *  @param  int     size of text to make breaks at
+   *  @return string  section of text
+   *  @private
+   */
+  function parseText(&$text, $cutoff) {
+    $page_count = empty($this->headers) ? count($this->headers) + 1 : count($this->headers);
+    $section = '';
+    switch ($cutoff)  {
+      case 1:
+      //  Manual breaks w/custom headers, for [ header = random ] we expect:
+      //  0:  [ header = HEADER TEXT ]
+      //  4:  HEADER TEXT
+      //  for [ pagebreak ] we expect:
+      //  0:  [ pagebreak ]
+        preg_match($this->re_custom, $text, $matches);
+        if (isset($matches[0]) )  {
+          $header   = isset($matches[4]) && $matches[4] ? $matches[4] : t('Page !num', array('!num' => $page_count + 1) );
+          $this->setHeader($header);
+          $section  = $this->parseSection($text, $matches, 1, 5);
+        }
+        else {
+        //  No matches, send back full text
+          $section = $text;
+          $text = '';
+        }
+        break;
+      case 2:
+      //  Manual breaks w/h3 tags, we except:
+      //  0:  <h3>HEADER TEXT</h3>
+      //  2:  HEADER TEXT
+        $tag = 'h' . variable_get('pagination_header', 3);
+        if ('h3' !== $tag) {
+          $this->re_tag = str_replace('h3', $tag, $this->re_tag);
+        }
+        preg_match($this->re_tag, $text, $matches);
+        if (isset($matches[0]) )  {
+          $header   = isset($matches[2]) ? $matches[2] : t('Page !num', array('!num' => $page_count + 1) );
+          $this->setHeader($header);
+          $section  = $this->parseSection($text, $matches, 1, 3);
+        }
+        else {
+        //  No matches, send back full text
+          $section = $text;
+          $text = '';
+        }
+        break;
+      default:
+      //  Paging by words, we'll use the english approximate 5 chars per word (+ space)
+        $header   = t('Page !num', array('!num' => $page_count + 1) );
+        $this->setHeader($header);
+        $section  = $this->parseChunk($text, $cutoff * 6);
+        $text     = substr($text, strlen($section) );
+        break;
+    }
+    return $section;
+  }
+
+  /**
+   *  @desc   Handle splitting of sections in odd edge cases
+   *  @param  string  text to parse
+   *  @param  array   matches
+   *  @param  int     start tag position
+   *  @param  int     end tag position
+   *  @private
+   */
+  function parseSection(&$text, $matches, $start, $end) {
+    $open    = isset($matches[$start]) && !isset($matches[$end]) ? $matches[$start] : '';
+    $close   = isset($matches[$end]) && $matches[$end] && isset($matches[$start]) && !$matches[$start] ? $matches[$end] : '';
+    $split   = strpos($text, $matches[0]);
+    $section = substr($text, 0, $split) . $close;
+    $text    = $open . substr($text, $split + strlen($matches[0]) );
+    return $section;
+  }
+  
+  /**
+   *  @desc   Handle words per page chunking
+   *  @param  string  text to parse
+   *  @param  int     "maximum" length
+   *  @return string  text chunk
+   *  @private
+   */
+  function parseChunk($text, $size) {
+    return node_teaser($text, null, $size);
+  }
+}

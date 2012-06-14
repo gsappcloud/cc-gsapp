@@ -1,0 +1,93 @@
+// $Id: CHANGELOG.txt,v 1.1.2.24 2010/07/18 21:45:21 mundowen Exp $
+----------------------------------------------------------------------
+v1.7       18/Jul/2010
+----------------------------------------------------------------------
+
+-   #787932: Added missing classes for "Show All" links.
+-   #852972: Updated regex for CKEditor custom formatting options.
+-   #692402: New feature: choose <ul> or <ol> display for the TOC.
+-   #594780: Added node.tpl.php variables ($pagination->page_header and
+    $pagination->page_number).
+-   #651290: Fixed help text display issue.
+-   #537636: Added toggles to expand "Page Headers" helper text, in
+    addition to disabling filtering of potentially old pagination syntax.
+-   #517100: Fixed a TOC display issue under manual break - custom.
+
+----------------------------------------------------------------------
+v1.6        25/Jun/2009
+----------------------------------------------------------------------
+
+-   #421502: New feature: choose which heading level to paginate on.
+-   #386120: New feature: French translation - excessive thanks @luron.
+-   #473808: Fixed a regex issue on manual break - custom.
+-   #471596: Disabled pagination during search node building modes.
+-   #392928: Initial workaround for odd WYSIWYG behaviour.
+-   #453852: Typo fix.
+-   #406372: Pagination information is collapsed by default on node edit.
+-   #386154: Added toggle to disable one based paging (default: enabled).
+-   #385876: Pagination disabled during NODE_BUILD_PREVIEW.
+
+----------------------------------------------------------------------
+v1.5        20/Feb/2009
+----------------------------------------------------------------------
+
+-   #378580: Fixed a ToC headers issue while under manual break - h3.
+
+----------------------------------------------------------------------
+v1.4        18/Feb/2009
+----------------------------------------------------------------------
+
+-   #324584: New feature: display of the ToC via a block - thanks @quex.
+-   #323177: New feature: manually break pages via <h3> tags.
+-   #365659: New feature: disable specific nodes (by node id) from within
+    Pagination admin settings.
+-   #350196: Pagination is disabled under NODE_BUILD_PRINT.
+-   #353536: Pager/ToC have been moved to nodeapi.
+-   #369030: Fixed a pager display issue with certain themes.
+-   #324584: Rename of ToC CSS classes/ids (added pagination namespace).
+-   #360292: Better functionality for FCK/TinyMCE placed custom headers.
+-   #333635: E_NOTICE cleanup - thanks @heyrocker.
+-   #334440: Added $pager variable, now available in node.tpl.php.
+-   #325414: Add a "current" class to the ToC list items.
+
+----------------------------------------------------------------------
+v1.3        22/Oct/2008
+----------------------------------------------------------------------
+
+-   #324012: Added toggle for "Show full page" in admin settings.
+-   #324012, #324668: Fixed issue with CCK fields not showing.
+-   #324584: Fixed incorrect assignment of default class values in the ToC.
+
+----------------------------------------------------------------------
+v1.2        20/Oct/2008
+----------------------------------------------------------------------
+
+-   Fixed manual paging header display error in ToC (missing first header).
+
+----------------------------------------------------------------------
+v1.1        20/Oct/2008
+----------------------------------------------------------------------
+
+-   #321868: New feature: manual paging has been added, including a
+    table of contents style of pagination display. Page headers are
+    available for both manual and automatic paging methods. Paging
+    display may be default drupal style, table of contents style,
+    or both.
+-   Pagination is now 1 based (drupal default is 0 based).
+-   Added "Show full page" link below pagination.
+-   Pagination settings have been cleaned up and consolidated.
+-   Implemented full help functionality.
+-   Switch to v1.x versioning scheme.
+
+----------------------------------------------------------------------
+v1.01       14/Oct/2008
+----------------------------------------------------------------------
+
+-   #321409: Fixed an issue with hook_form_alter (relying on unreliable
+    data!), potentially creating problems with custom node types.
+
+----------------------------------------------------------------------
+v1.0        14/Oct/2008
+----------------------------------------------------------------------
+
+-   Switch to drupal CVS.

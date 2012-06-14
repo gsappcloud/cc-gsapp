@@ -1,0 +1,10 @@
+; $Id: pagination.info,v 1.1.2.2 2009/05/10 21:16:03 mundowen Exp $
+name = Pagination
+description = Allows arbitrary nodes to be paginated based on automatic or manual paging
+core = 6.x
+; Information added by drupal.org packaging script on 2010-07-18
+version = "6.x-1.7"
+core = "6.x"
+project = "pagination"
+datestamp = "1279489810"
+

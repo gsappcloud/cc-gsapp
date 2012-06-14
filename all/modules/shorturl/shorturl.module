@@ -1,0 +1,278 @@
+<?php
+//$Id: shorturl.module,v 1.1.2.9 2010/12/08 21:05:22 inadarei Exp $
+/**
+* @File shorturl.module
+*   the module file for shorturl
+*/
+
+// Minimum length of URI: 3 characters (3844 in base10 is equivalent to first 3-char number in base62).
+// This setting is modifyable from settings.php if you don't like it.
+define ('SHORTURL_START_FROM', variable_get('shorturl_start_from', 3844));
+
+/**
+* hook_init implementation
+*/
+function shorturl_init() {
+  require_once (dirname(__FILE__) . '/shorturl.engine.inc');
+  
+  // Only engage in short URL routing if there does not exist a Drupal handler
+  $preexisting_menu_callback = menu_get_item();
+  if (empty($preexisting_menu_callback)) {
+    route_short_url();
+  }
+
+}
+
+/**
+* Try to route a short url request to its appropriate long URL version
+*/
+function route_short_url() {
+
+  $token = $_GET['q'];
+
+  if (!empty($token)) {
+    $indx = shorturl_decode_url($token);
+    if (is_numeric($indx)) {
+      $orig_url = db_result(db_query('SELECT orig_url FROM {shorturl_link} WHERE lid=%d ', $indx));
+    }
+
+    if (!empty($orig_url)) {
+      if (stripos($orig_url, 'http') === FALSE &&
+          stripos($orig_url, 'https') === FALSE) {
+        $orig_url = url($orig_url, array('absolute' => TRUE)); //Let drupal make relative URLs absolute
+      }
+
+      $incoming_query_string = $_GET;
+      unset($incoming_query_string['q']);
+      if (count($incoming_query_string) > 0) {
+        $compound_url = shorturl_merge_query_string($orig_url, $incoming_query_string);
+      }
+      else {
+        $compound_url = $orig_url;
+      }
+
+      drupal_goto($compound_url,  $query = NULL, $fragment = NULL, $http_response_code = 301);
+      exit();
+    }
+  }
+}
+
+/**
+* Given a URL, merge additional query string parts on top of it. Note: the initial URL may have its own query string before merge.
+*
+* @param $url
+*   initial URL (must be a fully-qualitified URL!)
+* @param $query_string_parts
+*   Associative array of query string parts to add to the original URL (use PHP parse_str() if you need to get these from a query string).
+* @return
+*   URL with the merged query string or FALSE on failure.
+*/
+function shorturl_merge_query_string($url, $query_string_parts) {
+  if (empty($query_string_parts) || !is_array($query_string_parts)) {
+    return $url;
+  }
+  $url_parsed = parse_url($url);
+  $orig_qs_parsed = array();  
+  parse_str($url_parsed['query'], $orig_qs_parsed);
+
+  // Merge
+  $final_query_string_array = array_merge($orig_qs_parsed, $query_string_parts);
+  $final_query_string = http_build_query($final_query_string_array, '', '&');
+  
+  // Resulting URL:
+  $new_url = $url_parsed['scheme'] 
+         . '://'
+         . $url_parsed['host'] 
+         . $url_parsed['path'] 
+         . '?'      
+         . $final_query_string;
+  
+  return $new_url;
+}
+
+
+/** 
+* hook_perm implementation
+*/ 
+function shorturl_perm() {
+  return array('administer shorturl');
+}
+
+/**
+* hook_menu() implementation
+*/
+function shorturl_menu() {
+
+  $items['admin/settings/shorturl'] = array(
+    'title' => 'ShortURL',
+    'description' => 'Configure the settings for ShortURL.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('shorturl_admin_settings_form'),
+    'access arguments' => array('administer shorturl'),
+    'file' => 'shorturl.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+
+/**
+*
+* Generate unique short token or a short URL, for an arbitrary URL. Both absolute and relative
+* URLs are supported.
+*
+* @param $long_url
+*   the original URL
+*
+* @param $full_url
+*   return full URL with the domain set to the one in the module admin settings or the domain of the Drupal 
+*   installation if the former is empty. FALSE by default.
+*
+* @return shortened URI token or full shortened URL
+*
+*/
+function shorturl_shorten ($long_url, $full_url = FALSE) {
+
+  $token = _shorturl_get_token($long_url);
+  
+  if ($full_url) {
+    
+    $domain = variable_get('shorturl_domain', shorturl_default_domain());
+
+    if (substr(trim($domain), -1, 1) != '/') { 
+      $domain .= '/';
+    }
+    $url = $domain . $token;
+    return $url;
+  }
+  else {
+    return $token;                   
+  }
+  
+  
+}
+
+function shorturl_default_domain() {
+  static $default_domain;
+  
+  if (!empty($default_domain)) {
+    return $default_domain;
+  }
+  
+  $base_root = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+  $default_domain =  $base_root . '://'. $_SERVER['HTTP_HOST'];
+  
+  return $default_domain;
+  
+}
+
+/**
+*
+* Generate unique short token for an arbitrary URL. Both absolute and relative
+* URLs are supported.
+*
+* @param $long_url
+*   the original URL
+*
+* @return short URL token.
+*
+*/
+function _shorturl_get_token($long_url) {
+
+	//-- Let modules alter original URL if/as necessary
+	$hook = 'shorturl_originalurl_alter';
+  foreach (module_implements($hook) as $module) {
+  	$func_name = $module .'_'. $hook;
+  	$func_name($long_url);
+  }
+  
+	$parsed_url = @parse_url($long_url);
+	//-- we should not try to shorten URLs that are malformed or empty to begin with
+	if (empty($parsed_url['host'])) {
+		return NULL;
+	}
+
+  //Do we already have this URL?
+  $existing_id = db_result(db_query('SELECT lid FROM {shorturl_link} WHERE orig_url=\'%s\' ', $long_url));
+  if (!empty($existing_id)) {
+    $encoded = shorturl_encode_url($existing_id);
+    return $encoded;
+  }
+  
+  $remote_ip = (empty($_SERVER['REMOTE_ADDR'])) ? '' : $_SERVER['REMOTE_ADDR']; 
+
+  $link = new stdClass();
+  $link->orig_url = $long_url; 
+  $link->created = (int)time();
+  $link->remote_ip = $remote_ip;
+  
+  $last_id = db_result(db_query('SELECT max(lid) FROM {shorturl_link}'));
+  if ($last_id < SHORTURL_START_FROM) {$last_id = SHORTURL_START_FROM;}
+  
+  $last_id++; 
+  $iteration = 0;
+  $found_vacant = FALSE;  
+  
+  while (! $found_vacant ) {
+  	
+  	$iteration++;
+  	//-- force-quit a possible, accidental endless loop.
+  	if ($iteration > 10) { 
+  		return NULL;
+  	}
+  	
+    $encoded = shorturl_encode_url($last_id);
+    $found_vacant = shorturl_check_availability($encoded);
+    if (!$found_vacant) {
+      $last_id++;
+    }
+    // Perform multi-threading safety check. 
+    // Make sure nobody inserted a record with this $lid, while we were checking other stuff    
+    else {
+      $link->lid = $last_id;
+      $status = @drupal_write_record('shorturl_link', $link);
+      if (!$status) {
+        $found_vacant = FALSE;
+        $last_id++;
+      }
+    }
+  }
+  
+  //-- Let modules alter final (shortened) URL if/as necessary
+	$hook = 'shorturl_shortenedurl_alter';
+  foreach (module_implements($hook) as $module) {
+  	$func_name = $module .'_'. $hook;
+  	$encoded = $func_name($encoded, $long_url);
+  }
+  
+  return $encoded;
+}
+
+function shorturl_check_availability($token) {
+  $reserved = shorturl_reserved_tokens();
+  
+  foreach ($reserved as $key) {
+    if (stripos($token, $key)!== FALSE) {  // contains reserved word!
+      return FALSE;
+    }
+  }
+  
+  $menu_handler =  menu_get_item($token);
+  if (!empty($menu_handler)) { return FALSE; } // there's already a handler for this path!
+  
+  $alias_found = db_result(db_query('SELECT count(*) FROM {url_alias} WHERE dst = \'%s\' ', $token));
+  
+  if (is_numeric($alias_found) && $alias_found > 0) { return FALSE; } // such alias already exists!
+  
+  return TRUE;
+}
+
+
+function shorturl_reserved_tokens() {
+  $reserved_settings = variable_get('shorturl_reserved_tokens', array());
+  
+  $reserved_system = array('node', 'admin', 'term', 'user');
+  
+  return $reserved_system + $reserved_settings;
+}

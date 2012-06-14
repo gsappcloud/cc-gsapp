@@ -1,0 +1,127 @@
+/**
+ * Your theme name here
+ *
+ * Say something about the theme
+ *
+ * Give yourself some credit here
+ *
+ */
+
+/* Container */
+.dk_container {
+	border:1px solid #1392ff;
+	font:15px Helvetica,Arial,sans-serif;
+	background:white;
+	width:100%;
+	outline:none;
+}
+
+/* Toggle */
+.dk_theme_gsapp .dk_toggle {
+	display:block;
+	padding:6px;
+	cursor:pointer;
+	width:100% !important;
+	box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-o-box-sizing:border-box;
+	background:url('../images/dk-arrow.gif') no-repeat right 7px;
+}
+
+/* Focus State */
+.dk_theme_gsapp.dk_focus,
+.dk_theme_gsapp:focus {}
+  .dk_theme_gsapp.dk_focus .dk_toggle {}
+  
+/* Open State */
+.dk_theme_gsapp.dk_open {}
+  .dk_theme_gsapp.dk_open .dk_toggle {}
+
+/* Options Menu */
+.dk_theme_gsapp .dk_options {
+	border:1px solid #1392ff;
+	background:white;
+	right:-1px; margin-top:1px;
+/*	padding:6px 4px;*/
+	max-height:200px;
+	z-index:100;
+	overflow-y:auto;
+	margin-bottom:20px;
+}
+  .dk_theme_gsapp .dk_options a {cursor:pointer;line-height:22px;}
+  .dk_theme_gsapp .dk_options a:hover,
+  .dk_theme_gsapp .dk_option_current a {}
+
+/* Inner options */
+.dk_theme_gsapp .dk_options_inner {
+	padding:6px;
+}
+
+/* Set a width property here */
+.dk_theme_gsapp .dk_options_inner,
+.dk_theme_gsapp.dk_touch .dk_options {}
+
+/***** Critical to the continued enjoyment of working dropdowns ******/
+
+.dk_container {
+  display: none;
+  float: left;
+  position: relative;
+}
+  .dk_container a {
+    outline: 0;
+  }
+
+.dk_toggle {
+  display: -moz-inline-stack;
+  display: inline-block;
+  *display: inline;
+  position: relative;
+  zoom: 1;
+}
+
+.dk_open {
+  position: relative;
+}
+  .dk_open .dk_options {
+    display: block;
+  }
+  .dk_open .dk_label {
+    color: inherit;
+  }
+
+.dk_options {
+  display: none;
+  margin-top: -1px;
+  position: absolute;
+  right: 0;
+  width: 100%;
+}
+  .dk_options a,
+  .dk_options a:link,
+  .dk_options a:visited {
+    display: block;
+  }
+  .dk_options_inner {
+    overflow: auto;
+    position: relative;
+  }
+
+.dk_touch .dk_options {
+  overflow: hidden;
+}
+
+.dk_touch .dk_options_inner {
+  max-height: none;
+  overflow: visible;
+}
+
+.dk_fouc select {
+  position: relative;
+  top: -99999em;
+  visibility: hidden;
+}
+
+/***** End Critical to the continued enjoyment of working dropdowns ******/
+

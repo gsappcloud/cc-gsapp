@@ -1,0 +1,232 @@
+<?php
+// $Id:$
+
+/**
+ * @file
+ * This is a Drupal Module - Person Field
+ * It implements a Person field for CCK
+ *
+ * Copyright 2009 Jennifer Hodgdon, Poplar ProductivityWare LLC
+ *
+ * Licensed under the GNU Public License
+ */
+
+
+/**
+ * Implementation of CCK's hook_field_info().
+ *
+ * Returns basic information about this CCK field.
+ */
+function gsapp_editors_fld_field_info() {
+  return array(
+    'gsapp_editors' => array(
+      'label' => t('Editor Information'),
+      'description' => t('Stores editor information'),
+    )
+  );
+}
+
+
+/**
+ * Implementation of hook_install().
+ *
+ * Lets CCK take care of this.
+ */
+function gsapp_editors_fld_install() {
+  content_notify('install', 'gsapp_editors');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ *
+ * Lets CCK take care of this.
+ */
+function gsapp_editors_fld_uninstall() {
+  content_notify('uninstall', 'gsapp_editors');
+}
+
+/**
+ * Implementation of hook_enable().
+ *
+ * Lets CCK take care of this.
+ */
+function gsapp_editors_fld_enable() {
+  content_notify('enable', 'gsapp_editors');
+}
+
+/**
+ * Implementation of hook_disable().
+ *
+ * Lets CCK take care of this.
+ */
+function gsapp_editors_fld_disable() {
+  content_notify('disable', 'gsapp_editors');
+}
+
+/**
+ * Implementation of CCK hook_field_settings().
+ */
+function gsapp_editors_fld_field_settings($op, $field) {
+  switch ($op) {
+    case 'database columns':
+      $columns['editor_name'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE, 'default' => '');
+      $columns['editor_description'] = array('type' => 'text', 'length' => null, 'not null' => FALSE, 'sortable' => TRUE, 'default' => '');
+      return $columns;
+  }
+}
+
+/**
+ * Implementation of CCK hook_field().
+ */
+function gsapp_editors_fld_field($op, &$node, $field, &$items, $teaser, $page) {
+  switch ($op) {
+    case 'sanitize':
+      foreach ($items as $delta => $item) {
+        foreach ($item as $col => $dat) {
+          $items[$delta]['safe_' . $col ] = check_plain($item[ $col ]);
+        }
+      }
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_content_is_empty().
+ */
+function gsapp_editors_fld_content_is_empty($item, $field) {
+  if (empty($item['editor_name'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Implementation of hook_widget_info().
+ */
+function gsapp_editors_fld_widget_info() {
+  return array(
+    'gsapp_editors_entry' => array(
+      'label' => t('Text fields'),
+      'field types' => array('gsapp_editors'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+      'callbacks' => array(
+        'default value' => CONTENT_CALLBACK_DEFAULT,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of Form API's hook_elements().
+ *
+ * Returns a skeleton Form API array that defines callbacks
+ * for the widget form.
+ */
+function gsapp_editors_fld_elements() {
+  $elements = array('gsapp_editors_entry' =>
+    array(
+      '#input' => TRUE,
+      '#process' => array('gsapp_editors_fld_gsapp_editors_entry_process'),
+    ),
+  );
+
+  return $elements;
+}
+
+/**
+ * Process callback for widget
+ *
+ * Returns a Forms API array that defines the widget's editing form.
+ */
+function gsapp_editors_fld_gsapp_editors_entry_process($element, $edit, &$form_state, $form) {
+
+  $defaults = $element['#value'];
+  $field = content_fields($element['#field_name'], $element['#type_name']);
+
+  $element['editor_name'] = array(
+    '#title' => t('Name'),
+    '#type' => 'textfield',
+    '#default_value' => $defaults['editor_name'],
+    '#weight' => 2,
+  );
+
+  $element['editor_description'] = array(
+    '#title' => t('Description'),
+    '#type' => 'textarea',
+    '#default_value' => $defaults['editor_description'],
+    '#weight' => 3,
+  );
+
+  return $element;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function gsapp_editors_fld_theme() {
+  return array(
+    'gsapp_editors_entry' => array(
+      'arguments' => array('element' => NULL),
+    ),
+    'gsapp_editors_fld_formatter_default' => array(
+      'arguments' => array('element' => NULL),
+    ),
+  );
+}
+
+/**
+ * FAPI theme for an individual text elements.
+ */
+function theme_gsapp_editors_entry($element) {
+  return $element['#children'];
+}
+
+/**
+ * Implementation of hook_widget().
+ */
+function gsapp_editors_fld_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+  $element = array(
+    '#type' => $field['widget']['type'],
+    '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
+  );
+  return $element;
+}
+
+/**
+ * Implementation of CCK's hook_field_formatter_info().
+ *
+ * Returns information about available field formatters.
+ */
+function gsapp_editors_fld_field_formatter_info() {
+  return array(
+    'default' => array(
+       'label' => t('Editors display'),
+       'field types' => array('gsapp_editors'),
+    ),
+  );
+}
+
+/**
+ * Theme function for default formatter.
+ */
+function theme_gsapp_editors_fld_formatter_default($element = NULL) {
+  if(empty($element['#item'])) {
+    return '';
+  }
+
+  $stuff = $element['#item'];
+
+  $flds = array('editor_name', 'editor_description');
+  $ret = '<div class="gsapp-editors">';
+  $sep = '';
+  foreach($flds as $fld) {
+    if(!empty($stuff['safe_' . $fld ])) {
+      $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
+      $sep = "<br />\n";
+    }
+  }
+
+  $ret .= '</div>';
+
+  return $ret;
+}

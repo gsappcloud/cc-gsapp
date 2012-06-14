@@ -1,0 +1,634 @@
+/* @group blueprint overrides */
+
+body {
+  margin: 0;
+}
+
+div.container {
+  margin: 1.5em auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #222;
+}
+
+table { width:100%; }
+
+thead th, th {
+  font:15px Neutraface2TextTT, Helvetica, Arial, sans-serif;
+	color:#ff334a;
+	text-transform:uppercase;
+}
+
+.form-item label {
+  font:15px Neutraface2TextTT, Helvetica, Arial, sans-serif;
+	color:#ff334a;
+	text-transform:uppercase;
+	padding-bottom:3px;
+}
+
+.collapsible .form-item label { color:#000; font-family:Georgia, Times, serif; text-transform:none; margin:0 0 0 0; }
+.collapsible .form-item { margin:0 0 10px 0; }
+
+.collapsible legend a {
+	font:15px Neutraface2TextTT, Helvetica, Arial, sans-serif;
+	color:#ff334a;
+	text-transform:uppercase;
+}
+
+#node-admin-content { width:750px; margin:0 auto; }
+
+#autosave-status { background:#000; text-align:center; height:auto; padding:5px 0 10px 0; }
+#autosave-status span { font-size:12px; }
+
+th a img {
+  margin: 0;
+}
+tr td {
+	padding:7px 0;
+}
+tr.even td {
+  background: #fff;
+	font-size:14px;
+}
+
+tr.odd td {
+  background: #fff;
+	font-size:14px;
+}
+
+thead th { border:0; padding-bottom:5px; }
+
+fieldset dl, fieldset select {
+  margin: 0;
+	font-size:14px;
+	
+}
+fieldset select {
+	font-family: Verdana, Helvetica, Arial, sans-serif !important;
+	font-size:11px !important;	
+}
+fieldset select option {
+	
+}
+
+.box {
+  background: #f7f7f7;
+}
+
+.box fieldset {
+  background: #fff;
+}
+
+div.form-item div.description img {
+  margin: 0;
+}
+
+#messages {
+	position:relative;
+	z-index:20000;
+	width:720px;
+	margin:0 auto;
+}
+div.messages {
+  margin-bottom: 1.5em;
+  padding: 0.68em;
+/*  font-weight: bold;*/
+	font-size:18px;
+	font-family:Neutraface2TextTT, Helvetica, Arial, sans-serif;
+	width:100%;
+	background:#000 !important;
+	color:#fff !important;
+	display:block;
+	border:0 !important;
+}
+div.messages a { color:#ff334a; }
+div.messages a:hover { color:#fff; }
+
+div.messages.success {
+
+}
+
+div.messages ul {
+  margin-bottom: 0;
+}
+
+/* @end */
+
+/* @group drupal overrides */
+
+div.admin {
+  padding-top: 0; /* fix alignment of admin panel */
+}
+
+div.admin-panel {
+  padding: 1.5em 0 0 0;
+}
+
+div.admin-panel .body {
+  padding: 0;
+}
+
+div.admin-panel .description {
+  margin: 0 0 1.5em 0;
+  padding: 0;
+}
+
+div.admin .left,
+div.admin .right {
+  margin:0;
+}
+
+#user-admin-filter ul li,
+#node-admin-filter ul li {
+  list-style: none; /* remove list style from content node filter */
+}
+
+.breadcrumb {
+  padding-bottom: 0;
+  margin-bottom: 1.5em;
+}
+
+.more-help-link {
+  font-size: 0.9em;
+  line-height: 1.667em;
+}
+
+input.form-text, textarea {
+  border: 1px solid #ccc;
+  padding: 2px;
+}
+
+input {
+  vertical-align:text-bottom;
+  font:14px Georgia, Times, serif;
+}
+textarea {
+  vertical-align:text-bottom;
+  font:15px Georgia, Times, serif;
+}
+
+div.form-item {
+  margin-bottom: 1.5em;
+  margin-top: 1.5em;
+}
+
+div.error, tr.error, span.form-required, span.marker {
+  color: #ff334a;
+}
+
+.form-item input.error, .form-item textarea.error, .form-item select.error {
+  border: 1px solid #DD7777;
+  background: #FFCCCC;
+  color: #8A1F11;
+}
+
+/* fix admin/settings/performance */
+
+.form-item strong.error {
+  display: block;
+}
+
+.form-item textarea.error {
+  padding: 0.2em;
+}
+
+.admin .description {
+  font-size: 14px;
+  line-height: 1.667em; /* more accurate line-height value */
+	padding-bottom:3px;
+}
+
+html.js input.form-autocomplete { background-position:100% 5px; padding-right:20px; width:665px; }
+html.js input.throbbing { background-position:100% -15px; }
+.node-form .form-text { width:684px; }
+
+fieldset {
+  border:0;
+	padding:0;
+	margin:0 0 25px 0 !important;
+}
+
+fieldset legend {
+  display: block;
+	font:15px Neutraface2TextTT, Helvetica, Arial, sans-serif;
+	color:#ff334a;
+	text-transform:uppercase;
+	padding-bottom:5px;
+}
+
+/* prevent uncessary scrollbars */
+fieldset .collapsible {
+  overflow: hidden;
+}
+
+.collapsible .form-item { margin-top:0; }
+
+textarea {
+  line-height: 1.5em;
+  height: auto;
+}
+
+div.resizable-textarea textarea {
+  margin-top: 0;
+}
+
+html.js fieldset.collapsed {
+  background: none;
+}
+
+html.js fieldset.collapsible legend a {
+  background: transparent url(../images/admin-active-menu.gif) no-repeat scroll 0% 50%;
+  text-decoration: none;
+}
+
+html.js fieldset.collapsed legend a {
+  background: transparent url(../images/admin-toggle-closed.gif) no-repeat scroll 0% 50%;
+	color:#959595;
+}
+
+ul.menu li, .item-list ul li {
+  margin: 0;
+  padding: 0;
+}
+
+.tips {
+  font-size:1em;
+  margin-left:3em;
+}
+
+/* remove bottom margins from nested ul elements in menus */
+
+ul.menu li ul {
+  margin-bottom: 0;
+}
+
+.block ul, ul.menu, .item-list ul {
+  margin: 0pt 1.5em 1.5em;
+  padding: 0;
+}
+
+ul li, ul.menu li, .item-list ul li, li.leaf {
+  list-style-image: url(../images/icons/menu-leaf.gif);
+}
+
+ul li.expanded {
+  list-style-image: url(../images/icons/menu-expanded.gif);
+}
+
+ul li.collapsed {
+  list-style-image: url(../images/icons/menu-collapsed.gif);
+}
+
+div.tabs {
+  margin-bottom: 1.5em;
+}
+.tab-wrapper {
+	overflow:hidden;
+	position:absolute;
+	right:0;
+	top:150px;
+}
+
+ul.secondary {
+  margin: 2px 0 0 0;
+  padding: 2px 0 0 0;
+	clear:both;
+	border:0;
+	border-top:1px solid #000;
+}
+
+ul.secondary li {
+  list-style:none; margin:0; overflow:hidden; display:block; text-align:right; border:0; padding:0;
+}
+ul.secondary a { font-size:15px; font-family:Neutraface2TextTT, Helvetica, Arial, sans-serif; text-transform:uppercase; }
+
+ul.secondary a.active { border:0; color:#ff334a; }
+
+ul.primary {
+  margin: 0;
+	clear:both;
+	border:0 !important;
+	padding:0;
+}
+ul.primary li { list-style:none; margin:0; overflow:hidden; display:block; text-align:right; }
+
+ul.primary li a {
+  background: none;
+	border:0 !important;
+	padding:0;
+	font-family:Neutraface2TextTT, Helvetica, Arial, sans-serif;
+	font-size:15px;
+	text-transform:uppercase;
+	margin:0;
+	color:#898989;
+}
+.tab-wrapper li a.active,
+.tab-wrapper li.active a {
+	color:#ff334a;
+}
+.tab-wrapper li a:hover { background:none !important; color:#ff334a; }
+
+div.help {
+  background: #ffc;
+  padding: 0.75em; /* fix alignment of help text */
+  margin-bottom: 1.5em;
+}
+
+/* fix alignment on user profile page */
+
+.profile dt {
+  margin: 1.5em 0 0 0;
+}
+
+/* fix book module */
+
+.book-navigation .page-links {
+  background: #F1F5FA;
+  border: none;
+  padding: 0.75em;
+  margin-bottom: 1.5em;
+}
+
+.book-navigation .menu {
+  padding: 1.417em 0 0 3em;
+  margin: 0 0 1.5em 0;
+  border-color: #bbb;
+}
+
+/* @end */
+
+/* @group basic elements */
+
+blockquote {
+  background: url(../images/lquote.png) no-repeat left top;
+  font-size: 1em;
+  margin: 0 0 1.5em 0;
+  padding: 0 0 0 40px;
+}
+
+blockquote p {
+  margin: 0;
+}
+
+#saving {
+  background: url(../images/loading.gif) no-repeat 12px 1px;
+  padding-left: 36px;
+  font-weight: bold;
+  font-size: 1em;
+  display: none;
+}
+
+#saving p {
+  margin: 0;
+}
+
+#saving-notice {
+  font-size: 0.9em;
+  background: #ffc;
+  font-style: italic;
+}
+
+/* @end */
+
+/* @group nodes */
+
+div.node {
+  margin: 0 0 1.5em 0;
+  padding: 0 0 1.417em 0;
+  border-bottom: 1px solid #ccc;
+}
+
+div.node h2 {
+  margin-bottom: 0;
+}
+
+div.node div.meta {
+  font-size: 0.9em;
+  line-height: 1.667em;
+  margin-bottom: 1.667em;
+}
+
+div.meta div.submitted, div.meta div.terms {
+  display: inline;
+}
+
+div.node div.picture {
+  float: right;
+  margin: 0 0 0.8em 0.8em;
+}
+
+div.node ul.links {
+  display: block;
+  text-align: right;
+}
+
+div.node div.meta ul.links {
+  display: inline;
+  padding: 0 1em 0 0;
+}
+
+/* @end */
+
+/* @group comments */
+
+div.comment-content {
+  float: left;
+  margin-right: 10px;
+}
+
+div.comment div.picture {
+  text-align: right;
+}
+
+div.comment span.username {
+  font-weight: bold;
+}
+
+div.comment span.date {
+  font-style: italic;
+}
+
+div.comment span.new {
+  color: #5B1100;
+  font-weight: bold;
+}
+
+div.comment div.permalink {
+  width:32px;
+  float:right;
+}
+
+div.comment img {
+  margin: 0;
+  border: 1px solid #ccc;
+  padding:1px;
+}
+
+div.comment {
+  padding: 0.75em 1em;
+  margin: 1.5em 0;
+	position:relative;
+}
+
+div.comment.odd {
+  
+}
+
+div.comment.author {
+  
+}
+
+h3#comment-number {
+  margin-top: 1em;
+}
+
+div.indented {
+  margin-left:40px;
+}
+
+/* @end */
+
+/* @group blocks */
+
+div.block {
+  margin-bottom: 1.5em;
+}
+
+/* @end */
+
+/* @group block editing */
+
+  div.block.with-block-editing
+  {
+    position: relative;
+  }
+
+  div.block.with-block-editing div.edit
+  {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 40;
+    border: 1px solid #eee;
+    padding: 0 2px;
+    font-size: 9px;
+    background-color: #fff;
+  }
+
+  div.block.with-block-editing:hover div.edit
+  {
+    display: block;
+  }
+
+/* @end */
+
+/* @group pager */
+
+ul.pager {
+  line-height: 1.667em;
+  margin: 1.667em 0;
+  font-size: 0.9em;
+}
+
+ul.pager a, ul.pager li.pager-current {
+  border: 1px solid #0066B3;
+  text-decoration: none;
+  margin-right: 3px;
+  padding: 3px 6px;
+}
+
+ul.pager li.pager-current {
+  background: #0066B3;
+  color: #fff;
+}
+
+ul.pager a:link,
+ul.pager a:visited {
+  color:#0066B3;
+}
+
+ul.pager a:hover,
+ul.pager a:focus,
+ul.pager a:active {
+  background-color: #0066B3;
+  color: #fff;
+  border: 1px solid #0066B3;
+}
+
+ul.pager span.pager-ellipsis {
+  padding: 0 0.5em;
+}
+
+.item-list .pager li { 
+  padding:0em;
+}
+
+table.sticky-header { z-index:2000; }
+/* locations */
+#field-locations-items,
+#field-notes-items { margin:25px 0 0 0; }
+.location-current-coordinates-fieldset { display:none; }
+.location .form-item .description { display:none; }
+.location .form-item label { color:#000; }
+.location .form-item { width:336px; float:left; clear:none; margin-bottom:15px !important; }
+.location .form-item input { width:100%; }
+.location .edit-field-locations-delete-location { clear:both; float:none; margin:0 0 10px 0 !important; }
+.location .edit-field-locations-name { margin-right:20px; }
+.location .edit-field-locations-additional { margin-right:20px; }
+.location .edit-field-locations-province { margin-right:20px; }
+.location .edit-field-locations-province input { padding-right:0 !important; }
+.location .gmap--locpick_latitude0 { margin-right:20px; }
+.location .edit-field-locations-country label { display:block; float:none; }
+.location .gmap-gmap { margin-bottom:0; }
+.edit-field-locations-country,
+.gmap--locpick_latitude0,
+.gmap--locpick_longitude0 { display:none; }
+
+
+.ckeditor_links { font:11px Neutraface2TextTT, Helvetica, Arial, sans-serif; text-transform:uppercase; position:relative; top:-20px; }
+.compact-link { font:11px Neutraface2TextTT, Helvetica, Arial, sans-serif; text-transform:uppercase; }
+
+.admin-panel h3 { font:28px Neutraface2TextTT, Helvetica, Arial, sans-serif; color:#ff334a; margin-bottom:0; }
+.admin-panel a,
+.admin-list a { font:20px Neutraface2TextTT, Helvetica, Arial, sans-serif; color:#898989; }
+.admin-panel a:hover,
+.admin-list a:hover { color:#ff334a; }
+.admin-panel dd,
+.admin-list dd { font-size:16px; }
+
+ul { margin:0; }
+ul li { list-style-type:none !important; list-style-image:none; padding:0; }
+
+.content-add-more { margin:5px 0 25px 0; }
+
+/* admin images */
+#field_images_values .widget-edit .form-item label { color:#000; }
+
+.form-submit, .form-file { font:11px Verdana, Helvetica, Arial, sans-serif; }
+
+/* @end */
+
+#user-login-form li.openid-link, 
+#user-login li.openid-link {
+  background-position: 0 0;
+  padding-left:18px;
+}
+
+/* @group Fixes */
+
+/* These are fixes to an issue in blueprint.
+See: http://blueprintcss.lighthouseapp.com/projects/15318-blueprint-css/tickets/94-checkbox-and-radio-button-alignment
+http://drupal.org/node/491052
+http://drupal.org/node/700464 */
+
+input[type=checkbox], input[type=radio], input.checkbox, input.radio {
+  top: 0;
+}
+
+textarea, input {
+  vertical-align: inherit;
+}
+
+/* @end */

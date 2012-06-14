@@ -1,0 +1,119 @@
+<?php
+// $Id: pagination.install,v 1.1.2.12 2010/02/05 05:10:38 mundowen Exp $
+
+/**
+ *  @desc   Implementation of hook_install()
+ */
+function pagination_install() {
+  drupal_install_schema('pagination');
+}
+
+/**
+ *  @desc   Implementation of hook_uninstall()
+ */
+function pagination_uninstall() {
+  drupal_uninstall_schema('pagination');
+  variable_del('pagination_showall');
+  variable_del('pagination_ignore');
+  variable_del('pagination_onebased');
+  variable_del('pagination_header');
+  variable_del('pagination_list_type');
+  variable_del('pagination_collapsed');
+  variable_del('pagination_filter');
+}
+
+/**
+ *  @desc   Implementation of hook_schema()
+ */
+function pagination_schema() {
+  $schema['pagination'] = array(
+    'description' => t('Extends the {node_type} table with a pagination value.'),
+    'fields' => array(
+      'type' => array(
+          'type'          =>  'varchar',
+          'length'        =>  32,
+          'not null'      =>  true,
+          'description'   =>  t('The {node_type} to enable pagination on.'),
+      ),
+      'paginate' => array(
+          'type'          =>  'int',
+          'unsigned'      =>  true,
+          'not null'      =>  true,
+          'default'       =>  0,
+          'description'   =>  t('The approximate number of words per page while paginating.'),
+      ),
+      'style' => array(
+        'type'        =>  'int',
+        'unsigned'    =>  true,
+        'not null'    =>  true,
+        'default'     =>  0,
+        'description' =>  t('The paging display style.')
+      ),
+    ),
+    'unique keys' => array(
+      'type' => array('type'),
+    ),  
+  );
+  
+  $schema['node_pagination'] = array(
+    'description' => t('Allows storage of page headers for a specific node under automatic paging.'),
+    'fields'      => array(
+      'nid' => array(
+        'type'        => 'int',
+        'unsigned'    => true,
+        'not null'    => true,
+        'default'     => 0,
+        'description' => t('The node id associated with the stored page headers.'),
+      ),
+      'headers' => array(
+        'type'        => 'text',
+        'not null'    => false,
+        'description' => t('A serialized array of headers associated with a specific node id.'),
+      ),
+    ),
+    'unique keys' => array(
+      'nid' => array('nid'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ *  @desc   Update to version 1.1
+ */
+function pagination_update_6100()   {
+  $result     =   array();
+
+  $pagination =   array(
+    'type'      =>  'int',
+    'unsigned'  =>  true,
+    'not null'  =>  true,
+    'default'   =>  0,
+  );
+ 
+  $node_pagination = array(
+    'description' => t('Allows storage of page headers for a specific node under automatic paging.'),
+    'fields'      => array(
+      'nid' => array(
+        'type'        => 'int',
+        'unsigned'    => true,
+        'not null'    => true,
+        'default'     => 0,
+        'description' => t('The node id associated with the stored page headers.'),
+      ),
+      'headers' => array(
+        'type'        => 'text',
+        'not null'    => false,
+        'description' => t('A serialized array of headers associated with a specific node id.'),
+      ),
+    ),
+    'unique keys' => array(
+      'nid' => array('nid'),
+    ),
+  );
+
+  db_add_field($result, 'pagination', 'style', $pagination);
+  db_create_table($result, 'node_pagination', $node_pagination);
+  variable_del('pagination_node_types');
+  return $result;
+}

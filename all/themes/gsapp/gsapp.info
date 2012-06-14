@@ -1,0 +1,33 @@
+name = gsapp
+description = Drupal base theme built with blueprint CSS framework.
+
+core = 6.x
+engine = phptemplate
+stylesheets[screen,projection][] = css/gsapp.css
+stylesheets[screen,projection][] = css/style.css
+; Set the conditional stylesheets that are processed by IE.
+conditional-stylesheets[if IE][all][] = css/ie.css
+
+scripts[] = scripts/jquery.cycle.min.js
+scripts[] = scripts/jquery.scrollTo-1.4.2-min.js
+scripts[] = scripts/jquery.ba-hashchange.js
+scripts[] = scripts/general.js
+
+regions[left] = Left sidebar
+regions[right] = Right sidebar
+regions[content] = Content
+regions[header] = Header
+regions[footer] = Footer
+regions[commentz] = Commentz
+
+features[] = name
+features[] = slogan
+features[] = mission
+features[] = node_user_picture
+features[] = comment_user_picture
+features[] = search
+features[] = favicon
+features[] = primary_links
+features[] = secondary_links
+core = "6.x"
+

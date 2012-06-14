@@ -1,0 +1,7 @@
+name = GSAPP Magazine
+description = Creates new taxonomy terms for the magazine category upon creation/edits of magazine issues.
+dependencies[] = taxonomy
+package = GSAPP
+version = 1.0
+core = 6.x
+

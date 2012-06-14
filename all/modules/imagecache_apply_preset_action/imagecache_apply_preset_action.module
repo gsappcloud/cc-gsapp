@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * Implementation of hook_imagecache_actions().
+ */
+function imagecache_apply_preset_action_imagecache_actions() {
+  $actions = array(
+    'imagecache_apply_preset' => array(
+      'name' => t('Preset'),
+      'description' => t('Apply the actions of another preset to an image.'),
+      'file' => 'imagecache_actions.inc',
+    ),
+  );
+
+  return $actions;
+}
+
+/*
+ * Implementation of hook_theme().
+ */
+function imagecache_apply_preset_action_theme() {
+  return array(
+    'imagecache_apply_preset' => array(
+      'file' => 'imagecache_actions.inc',
+      'arguments' => array('element' => NULL),
+    ),
+  );
+}

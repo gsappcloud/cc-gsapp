@@ -1,0 +1,127 @@
+<?php
+// $Id: shorturl.install,v 1.1.2.5 2010/12/08 20:52:23 inadarei Exp $
+/*
+* @File shorturl.install
+*/
+
+/**
+ * Implementation of hook_schema().
+ */
+function shorturl_schema() {
+
+ $schema['shorturl_link'] = array(
+    'description' => 'ShortURL Links Table.',
+    'fields' => array(
+      'lid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'size' => 'big'),
+      'orig_url' => array('type' => 'varchar', 'length' => 2048, 'not null' => TRUE, 'default' => ''),
+      'created' => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
+      'remote_ip' => array('type' => 'varchar', 'length' => 20, 'not null' => FALSE, 'default' => ''),        
+      ),
+    'indexes' => array(
+      'shorturl_orig_url' => array('orig_url'),
+      'shorturl_lid' => array('lid'),      
+      ),
+    'primary key' => array('lid'),
+    );
+
+  $schema['shorturl_access'] = array(
+    'fields' => array(
+      'aid' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
+      'url_id' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'big'),      
+      'url_key' => array('type' => 'varchar', 'length' => 2048, 'not null' => TRUE, 'default' => ''),
+      'remote_ip' => array('type' => 'varchar', 'length' => 20, 'not null' => TRUE, 'default' => ''),
+      'referer' => array('type' => 'text', 'not null' => TRUE, 'size' => 'normal'),      
+      'browser' => array('type' => 'text', 'not null' => TRUE, 'size' => 'normal'),            
+      'access_time' => array('type' => 'int', 'not null' => TRUE, 'default' => 0),            
+    ),
+    'primary key' => array('aid'),
+   );
+  
+  return $schema;
+}
+ 
+ /**
+ * Implementation of hook_install()
+ */
+function shorturl_install() {
+  drupal_install_schema('shorturl');
+     
+  // Set this module at the top!
+  db_query("UPDATE {system} SET weight = -100 WHERE name = 'shorturl'");
+  
+}
+
+ /**
+ * Implementation of hook_uninstall().
+ */
+function shorturl_uninstall() {
+  drupal_uninstall_schema('shorturl');
+  variable_del('shorturl_domain');
+}
+
+/**
+* Fixes: http://drupal.org/node/627668
+* I can only test on MySQL so this fix is MySQL-specific. 
+* If you want a fix for other DBs, please contribute code.
+*/
+function shorturl_update_6001() {
+  global $db_type;
+  
+  $ret = array();
+  
+  if ($db_type == 'mysql' || $db_type == 'mysqli') {
+    $ret[] = update_sql("ALTER TABLE {shorturl_link} MODIFY COLUMN `lid` int(10) unsigned NOT NULL");
+  }
+
+  return $ret;
+}
+
+/**
+* Fixes: http://drupal.org/node/861042
+* I can only test on MySQL so this fix is MySQL-specific. 
+* If you want a fix for other DBs, please contribute code.
+*/
+function shorturl_update_6002() {
+  global $db_type;
+  
+  $ret = array();
+  
+  if ($db_type == 'mysql' || $db_type == 'mysqli') {
+    $ret[] = update_sql("ALTER TABLE {shorturl_link} MODIFY COLUMN `orig_url` varchar(2048) NOT NULL DEFAULT '' ");
+  }
+
+  return $ret;
+}
+
+/**
+* Fixes: http://drupal.org/node/846366
+* I can only test on MySQL so this fix is may or may not work on PgSQL (though syntax should be the same according to docs).
+* If you want a fix for other DBs, please contribute code.
+*/
+function shorturl_update_6003() {
+  global $db_type;
+  
+  $ret = array();
+  
+  $ret[] = update_sql("ALTER TABLE {shorturl_link} MODIFY COLUMN `lid` bigint unsigned NOT NULL");
+  $ret[] = update_sql("ALTER TABLE {shorturl_access} MODIFY COLUMN `url_id` bigint unsigned NOT NULL");    
+
+  return $ret;
+}
+
+/**
+* Adds index on lid column for shorturl_link
+* I can only test on MySQL so this fix is MySQL-specific. 
+* If you want a fix for other DBs, please contribute code.
+*/
+function shorturl_update_6004() {
+  global $db_type;
+  
+  $ret = array();
+  
+  if ($db_type == 'mysql' || $db_type == 'mysqli') {
+    $ret[] = update_sql("ALTER TABLE {shorturl_link} ADD INDEX shorturl_lid (lid) ");
+  }
+
+  return $ret;
+}

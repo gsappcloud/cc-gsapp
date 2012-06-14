@@ -1,0 +1,85 @@
+--- E:/source.4ev/drupal/modules-4ev/Location/location_cck.module	Thu Mar 25 10:00:07 2010
++++ E:/source.4ev/drupal/modules-4ev/Location/v2/location_cck.module	Mon Oct 25 16:02:57 2010
+@@ -19,6 +19,12 @@
+     ),
+     'location_cck_formatter_map' => array(
+       'arguments' => array('element' => NULL),
++    ),	    
++	'location_cck_formatter_multiple' => array(
++      'arguments' => array('element' => NULL),
++    ),
++	'location_cck_formatter_multiple_with_single_map' => array(
++      'arguments' => array('element' => NULL),
+     ),
+     'location_cck_field_map' => array(
+       'arguments' => array('locations' => NULL, 'field' => NULL),
+@@ -195,6 +201,11 @@
+       'field types' => array('location'),
+       'multiple values' => CONTENT_HANDLE_MODULE,
+     );
++    $info['multiple_with_single_map'] = array(
++      'label' => t('Multiple field values with a single map'),
++      'field types' => array('location'),
++      'multiple values' => CONTENT_HANDLE_MODULE,
++    );
+   }
+   return $info;
+ }
+@@ -351,15 +362,55 @@
+   return theme_location_cck_field_map(array($location), $field);
+ }
+ 
++
++function get_locations($element) {  
++  $aItems = array();
++  if(isset($element['#items'])===TRUE){
++		$locations = $element['#items'];
++  } else {
++		$aKeys = array_keys($element);	
++		foreach($aKeys as $sKey){
++			if(substr($sKey,0,1)!='#' && is_numeric($sKey)===TRUE){
++				$locations[$sKey] = $element[$sKey]['#item'];
++			}
++		}
++  }
++
++  //$locations = $aItems;
++  return $locations;
++}
++
++
++
+ /**
+  * Alternate function to return a map with all
+  * multiple values in the same map.
+  */
+-function theme_location_cck_formatter_combined($element) {
++function theme_location_cck_formatter_multiple($element) {  
+   $field = content_fields($element['#field_name'], $element['#type_name']);
+-  $locations = $element['#items'];
++
++  $locations = get_locations($element);
+   return theme_location_cck_field_map($locations, $field);
+ }
++
++
++/**
++ * Return all addresses and one single map.
++ */
++function theme_location_cck_formatter_multiple_with_single_map($element) {  
++  $field = content_fields($element['#field_name'], $element['#type_name']);
++  $locations = get_locations($element);
++
++	$hide = (isset($field['location_settings']['display']['hide'])) ? array_keys(array_filter($field['location_settings']['display']['hide'])) : array();
++	$content = '';
++	foreach ($locations as $location) {
++		$content .= theme('location', $location, $hide);
++	}
++
++  $content .= theme_location_cck_field_map($locations, $field);
++  return $content;
++}
++
+ 
+ /**
+  * Generate a GMap map for one or more location field values.

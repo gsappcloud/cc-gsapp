@@ -1,0 +1,35 @@
+<?php
+$_SESSION['original_title'];
+function gsappmagazine_nodeapi(&$node, $op, $a3, $a4) {
+	if($node->type == "magazine") {
+
+		switch ($op) {
+			// Create node				
+			case 'insert':
+				$term = array('vid' => 2, 'name' => $node->title);
+				taxonomy_save_term($term);
+				break;
+			
+			// Delete node
+	    case 'delete':
+				$tid = db_result(db_query("SELECT tid FROM {term_data} WHERE name = '%s' AND vid = %d", $node->title, 2));
+				
+				db_query('DELETE FROM {term_data} WHERE tid = %d', $tid);
+				db_query('DELETE FROM {term_node} WHERE tid = %d', $tid);
+
+	    	break;
+	    
+			// Get original node title just in case it gets changed
+			// Need it to update the db properly
+			case 'prepare':
+				$_SESSION['original_title'] = $node->title;
+				break;
+				
+			// Make changes to node title?  In that case, need to change term name
+   		case 'update':
+				$tid = db_result(db_query("SELECT tid FROM {term_data} WHERE name = '%s' AND vid = %d", $_SESSION['original_title'], 2));
+   			db_query("UPDATE {term_data} SET name = '%s' WHERE tid = %d", $node->title, $tid);
+   			break;
+	  }
+	}
+}

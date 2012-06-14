@@ -1,0 +1,5 @@
+name = GSAPP Editors Field
+description = A CCK compound field for displaying GSAPP Editor information
+dependencies[] = content
+package = GSAPP
+core = 6.x

@@ -1,0 +1,24 @@
+<?php
+function gsappforms_nodeapi(&$node, $op, $a3, $a4) {
+	if($node->type == "briefs" || $node->type == "notes" || $node->type == "papers") { 
+		switch ($op) {
+   		case 'update':
+				/*
+				 * Unfortunately, there is no 'Drupal' way to get the updated terms from this state in the hook
+				 * Need to do a manual sql query and store the terms in an array.
+				 */
+				$result = db_query('SELECT tid FROM term_node WHERE nid = %d', $node->nid);
+				$terms[] = array();
+				while ($term = db_result($result)) {
+					$terms[] = taxonomy_get_term($term);
+				}
+				sort($terms);
+					
+				animated($node, 'excerpt', true, $terms);
+				animated($node, 'image', true, $terms);
+				animated($node, 'tags', true, $terms);
+				
+				break;
+	  }
+	}
+}

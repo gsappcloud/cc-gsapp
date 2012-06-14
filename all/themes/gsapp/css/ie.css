@@ -1,0 +1,9 @@
+/* put IE hacks in here */
+@font-face {
+		font-family: 'Neutra';
+		src: url('type/neutra2text-book-webfont.eot');
+		src: local('Neutra'), url('neutra2text-book-webfont.ttf') format('opentype');
+		font-weight: normal;
+		font-style: normal;
+		font-size-adjust:.41;
+}
