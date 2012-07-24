@@ -1,4 +1,71 @@
 <?php
+
+function gsappfacebook_menu() {
+  $items['gsappalumni'] = array(
+    'title' => 'Facebook Alumni Publication', 
+    'page callback' => 'gsappfacebook_publish_stream',
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK, 	
+  );
+  return $items;
+}
+
+function gsappfacebook_publish_stream() {
+    require_once "sites/all/modules/fbconnect/facebook-php-sdk/src/facebook.php";
+	define('FACEBOOK_APP_ID',"326669530756182");
+	define('FACEBOOK_SECRET',"9788b97cdc8d423ca8370b9903a19ac0");
+
+	$facebook = new Facebook(array(
+		'appId' => FACEBOOK_APP_ID,
+		'secret' => FACEBOOK_SECRET,
+		'cookie' => true
+	));
+    $session = $facebook->getSession();
+
+    if (!$session) {
+    $url = $facebook->getLoginUrl(array(
+                   'canvas' => 1,   //set to 1 bcoz my application is Iframe app
+                   'fbconnect' => 0,
+                   'req_perms' => 'publish_stream,manage_pages'
+               ));
+    echo "<script type='text/javascript'>top.location.href = '$url';</script>";
+
+    } else {
+
+		try {
+		  if($_SESSION['post_to_fb_alumni']) {
+			$uid = $facebook->getUser();
+			$me = $facebook->api('/me');
+			$fb_accounts = $facebook->api('/me/accounts');
+			$attachment = array('message' => $_SESSION['fbconnect_gsappfacebookalumni']['message'],
+			 'access_token' => $fb_accounts['data'][0]['access_token'],
+			 'name' => $_SESSION['fbconnect_gsappfacebookalumni']['name'],
+			 'link' => $_SESSION['fbconnect_gsappfacebookalumni']['link'],
+			 'description' => $_SESSION['fbconnect_gsappfacebookalumni']['description'],
+			 'picture' => $_SESSION['fbconnect_gsappfacebookalumni']['picture']
+			 );
+
+
+			$result = $facebook->api(
+				'/337608722966002/feed/',
+				//'/104064693000960/feed/',
+				'post',
+				$attachment
+			);
+			drupal_set_message( "Your post was successfully posted to http://www.facebook.com/gsappalumni");
+			unset($_SESSION['post_to_fb_alumni']);
+			unset($_SESSION['fbconnect_gsappfacebookalumni']);
+		  }else {
+		    echo "This application only works when publishing or editing content from gsapp web page.";
+		  }
+		}
+			catch (FacebookApiException $e) {
+			   $result = $e->getResult();
+			}
+	}
+}
+
 function gsappfacebook_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {	
 	if ($op == 'insert' || $op == 'update') {
 		$fbuid  = fbconnect_get_fbuid();
@@ -11,9 +78,23 @@ function gsappfacebook_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
 			$_SESSION['fbconnect_gsappfacebook']['link'] = url(drupal_get_path_alias('node/' . $node->nid), array('absolute' => TRUE));
 			$_SESSION['fbconnect_gsappfacebook']['description'] = $node->field_excerpt[0]['value'];
 			$_SESSION['fbconnect_gsappfacebook']['picture'] = url(($node->field_images[0]['filepath']), array('absolute' => TRUE));
-			
+			$_SESSION['fbconnect_gsappfacebook']['facebook'] = '112971615402197';
     }
-		$_SESSION['post_to_fb'] = $node->facebook['post'];
+    $_SESSION['post_to_fb'] = $node->facebook['post'];
+
+	if(in_array('alumni',explode(',',$node->taxonomy['tags'][1]))) { 
+	  $message = t('Check out my latest post on !site...', array('!site' => variable_get('site_name', t('YOUR SITE'))));
+      $_SESSION['post_to_fb_alumni'] = 1;
+      $_SESSION['fbconnect_gsappfacebookalumni'] = array();
+      $_SESSION['fbconnect_gsappfacebookalumni']['message'] = $message;
+      $_SESSION['fbconnect_gsappfacebookalumni']['name'] = $node->title;
+	  $_SESSION['fbconnect_gsappfacebookalumni']['link'] = url(drupal_get_path_alias('node/' . $node->nid), array('absolute' => TRUE));
+	  $_SESSION['fbconnect_gsappfacebookalumni']['description'] = $node->field_excerpt[0]['value'];
+	  $_SESSION['fbconnect_gsappfacebookalumni']['picture'] = url(($node->field_images[0]['filepath']), array('absolute' => TRUE));
+	  gsappfacebook_publish_stream();
+    }
+
+
   }
 }
 
@@ -31,8 +112,8 @@ function gsappfacebook_preprocess_page(&$vars) {
 							link: '" . $_SESSION['fbconnect_gsappfacebook']['link'] . "',
 							picture: '" . $_SESSION['fbconnect_gsappfacebook']['picture'] . "',
 							message: \"" . $_SESSION['fbconnect_gsappfacebook']['description'] . "\",	
-							to: 112971615402197,
-							from: 112971615402197,
+							to: " . $_SESSION['fbconnect_gsappfacebook']['facebook'] . ",
+							from: " . $_SESSION['fbconnect_gsappfacebook']['facebook'] .",
 							actions: [
 								{ name: 'Read More', link: '" . $_SESSION['fbconnect_gsappfacebook']['link'] . "' }
 							]
