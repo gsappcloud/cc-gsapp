@@ -38,7 +38,7 @@ function gsappfacebook_publish_stream() {
 			$uid = $facebook->getUser();
 			$me = $facebook->api('/me');
 			$fb_accounts = $facebook->api('/me/accounts');
-			$attachment = array('message' => $_SESSION['fbconnect_gsappfacebookalumni']['message'],
+			$attachment = array('message' => $_SESSION['fbconnect_gsappfacebookalumni']['description'],
 			 'access_token' => $fb_accounts['data'][0]['access_token'],
 			 'name' => $_SESSION['fbconnect_gsappfacebookalumni']['name'],
 			 'link' => $_SESSION['fbconnect_gsappfacebookalumni']['link'],
@@ -157,5 +157,4 @@ function gsappfacebook_form_alter(&$form, $form_state, $form_id) {
 	     '#id' => 'facebook-toggle',
 	   );
 	}
-			
 }
